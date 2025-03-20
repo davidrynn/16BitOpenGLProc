@@ -4,6 +4,12 @@
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 
+// Global variables for camera rotation
+extern float yaw, pitch;
+extern float lastX, lastY;
+extern bool firstMouse;
+extern glm::vec3 cameraFront;
+
 class WindowManager {
 public:
     static GLFWwindow* createWindow(int width, int height, const char* title);

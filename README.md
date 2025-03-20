@@ -3,16 +3,16 @@
 │   ├── core/                 # Core engine components
 │   │   ├── Application.cpp
 │   │   ├── Application.h
-│   │   ├── WindowManager.cpp
-│   │   ├── WindowManager.h
-│   │   ├── InputManager.cpp
-│   │   ├── InputManager.h
 │   │   ├── Camera.cpp
 │   │   ├── Camera.h
-│   │   ├── Shader.cpp
-│   │   ├── Shader.h
+│   │   ├── InputManager.cpp
+│   │   ├── InputManager.h
 │   │   ├── Renderer.cpp
 │   │   ├── Renderer.h
+│   │   ├── Shader.cpp
+│   │   ├── Shader.h
+│   │   ├── WindowManager.cpp
+│   │   ├── WindowManager.h
 │   ├── terrain/              # Terrain generation
 │   │   ├── Terrain.cpp
 │   │   ├── Terrain.h

@@ -1,13 +1,10 @@
 #include "WindowManager.h"
 #include <iostream>
+#include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 
-// Global variables for camera rotation
-extern float yaw, pitch;
-extern float lastX, lastY;
-extern bool firstMouse;
-extern glm::vec3 cameraFront;
+glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);  // Forward vector
 
 GLFWwindow* WindowManager::createWindow(int width, int height, const char* title) {
     if (!glfwInit()) {
