@@ -9,6 +9,12 @@ float lastX = 400.0f, lastY = 300.0f;
 float yaw = -90.0f; // Initialize yaw to -90.0 degrees to look forward
 float pitch = 0.0f; // Initialize pitch to 0.0 degrees
 
+// Debug variables
+bool wireframeEnabled = false;
+bool f1Pressed = false;
+bool f2Pressed = false;
+bool f3Pressed = false;
+
 // Define the static camera pointer
 Camera* InputManager::camera = nullptr;
 
@@ -68,4 +74,46 @@ void InputManager::processKeyboard(GLFWwindow* window, Player& player)
         player.moveLeft(cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         player.moveRight(cameraSpeed);
+}
+
+void InputManager::handleDebugKeys(GLFWwindow* window) {
+    // --- F1: Toggle Wireframe ---
+    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS && !f1Pressed) {
+        wireframeEnabled = !wireframeEnabled;
+        glPolygonMode(GL_FRONT_AND_BACK, wireframeEnabled ? GL_LINE : GL_FILL);
+        std::cout << "Wireframe mode: " << (wireframeEnabled ? "ON" : "OFF") << std::endl;
+        f1Pressed = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE) {
+        f1Pressed = false;
+    }
+
+    // --- F2: Reload Shaders (optional placeholder) ---
+    if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS && !f2Pressed) {
+        std::cout << "Reloading shaders... (implement if needed)" << std::endl;
+        f2Pressed = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_RELEASE) {
+        f2Pressed = false;
+    }
+
+    // --- F3: Show FPS ---
+    if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS && !f3Pressed) {
+        static float lastTime = glfwGetTime();
+        static int frameCount = 0;
+
+        float currentTime = glfwGetTime();
+        frameCount++;
+
+        if (currentTime - lastTime >= 1.0f) {
+            std::cout << "FPS: " << frameCount << std::endl;
+            frameCount = 0;
+            lastTime = currentTime;
+        }
+
+        f3Pressed = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_RELEASE) {
+        f3Pressed = false;
+    }
 }

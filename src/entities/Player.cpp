@@ -1,4 +1,5 @@
 #include "Player.h"
+#include "Terrain.h"
 
 Player::Player(Camera* camera)
     : camera(camera)
@@ -27,5 +28,8 @@ void Player::moveRight(float delta)
 
 void Player::update()
 {
-    // Update player state if needed
+  // Snap to terrain height
+  float terrainHeight = Terrain::getHeightAt(camera->position.x, camera->position.z);
+  camera->position.y = terrainHeight + 1.0f;  // 1.0f is eye/camera height offset
+
 }

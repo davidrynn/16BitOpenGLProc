@@ -45,9 +45,10 @@ void Application::run()
 
     while (!glfwWindowShouldClose(window))
     {
-        InputManager::processKeyboard(window, player); // Handle input
-        player.update();                               // Update player movement
-        renderer.render();                             // Render scene
+        InputManager::processKeyboard(window, player);
+        InputManager::handleDebugKeys(window);
+        player.update();               
+        renderer.render();      // Render scene
 
         glfwSwapBuffers(window);
         glfwPollEvents();

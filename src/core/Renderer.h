@@ -7,18 +7,21 @@
 
 #include "Shader.h"
 #include "Terrain.h"
-#include "Camera.h" 
+#include "Camera.h"
 
-class Renderer {
+class Renderer
+{
 public:
-Renderer(Camera& camera);
-void initialize();
+    Renderer(Camera &camera);
+    void initialize();
     void render();
 
 private:
     unsigned int VAO, VBO, EBO;
     std::vector<unsigned int> terrainIndices;
-    Camera& camera; 
+    Camera &camera;
+    Shader *shader;                            // Pointer to the shader program
+    int screenWidth = 800, screenHeight = 600; // Screen dimensions
 };
 
 #endif

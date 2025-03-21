@@ -12,6 +12,7 @@ public:
     static void mouseCallback(GLFWwindow *window, double xpos, double ypos);
     static void processKeyboard(GLFWwindow *window, Player &player);
     static void setCamera(Camera *cam);
+    static void handleDebugKeys(GLFWwindow* window);
 
 private:
     static Camera *camera; // Static pointer to the camera object

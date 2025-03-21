@@ -19,7 +19,6 @@ std::vector<float> Terrain::generateTerrain(int gridSize) {
     return vertices;
 }
 
-// ✅ Add the missing function definition
 std::vector<unsigned int> Terrain::generateIndices(int gridSize) {
     std::vector<unsigned int> indices;
 
@@ -41,4 +40,10 @@ std::vector<unsigned int> Terrain::generateIndices(int gridSize) {
         }
     }
     return indices;
+}
+
+float Terrain::getHeightAt(float x, float z) {
+    // Simple sine-based height as placeholder
+    float scale = 0.2f;
+    return std::sin(x * scale) * std::cos(z * scale) * 2.0f;
 }

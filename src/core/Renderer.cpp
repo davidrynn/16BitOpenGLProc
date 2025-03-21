@@ -10,7 +10,7 @@
 #include <vector>
 
 Renderer::Renderer(Camera& camera)
-    : VAO(0), VBO(0), EBO(0), camera(camera)
+    : VAO(0), VBO(0), EBO(0), camera(camera), shader(nullptr)
 {
 }
 
@@ -59,6 +59,14 @@ void Renderer::initialize()
 
     std::cout << "VAO configured." << std::endl;
 
+    // Enable depth testing
+    glEnable(GL_DEPTH_TEST);
+    glClearColor(0.1f, 0.1f, 0.1f, 1.0f); // Dark gray background
+
+    // Create and store shader
+    shader = new Shader("shaders/vertex_shader.glsl", "shaders/fragment_shader.glsl");
+    shader->use(); // Use the shader once at initialization
+
     // Check for OpenGL errors
     GLenum error = glGetError();
     if (error != GL_NO_ERROR)
@@ -71,20 +79,20 @@ void Renderer::render()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-    // Use shader program
-    Shader shader("shaders/vertex_shader.glsl", "shaders/fragment_shader.glsl");
-    shader.use();
+    shader->use(); // Reuse the shader instead of reloading it
+
+    // Get the current framebuffer size
+    int width, height;
+    glfwGetFramebufferSize(glfwGetCurrentContext(), &width, &height);
+    glm::mat4 projection = glm::perspective(glm::radians(45.0f), (float)width / (float)height, 0.1f, 100.0f);
 
     // Set up camera and projection matrices
     glm::mat4 model = glm::mat4(1.0f);
     glm::mat4 view = camera.getViewMatrix();
-    glm::mat4 projection = glm::perspective(glm::radians(45.0f), 800.0f / 600.0f, 0.1f, 100.0f);
 
-    shader.setMat4("model", model);
-    shader.setMat4("view", view);
-    shader.setMat4("projection", projection);
-
-   // std::cout << "Drawing " << terrainIndices.size() << " indices." << std::endl;
+    shader->setMat4("model", model);
+    shader->setMat4("view", view);
+    shader->setMat4("projection", projection);
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, terrainIndices.size(), GL_UNSIGNED_INT, 0);
