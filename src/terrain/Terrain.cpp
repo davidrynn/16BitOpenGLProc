@@ -1,5 +1,6 @@
 #include "Terrain.h"
-#include <vector>
+#include <cmath>
+#include <iostream>
 
 std::vector<float> Terrain::generateTerrain(int gridSize) {
     std::vector<float> vertices;
@@ -46,4 +47,18 @@ float Terrain::getHeightAt(float x, float z) {
     // Simple sine-based height as placeholder
     float scale = 0.2f;
     return std::sin(x * scale) * std::cos(z * scale) * 2.0f;
+}
+
+void Terrain::initialize() {
+    for (int z = -2; z <= 2; ++z) {
+        for (int x = -2; x <= 2; ++x) {
+            chunks[{x, z}] = new Chunk(x, z);
+        }
+    }
+}
+
+void Terrain::render() {
+    for (auto& pair : chunks) {
+        pair.second->render();
+    }
 }

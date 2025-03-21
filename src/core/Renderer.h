@@ -22,6 +22,7 @@ private:
     Camera &camera;
     Shader *shader;                            // Pointer to the shader program
     int screenWidth = 800, screenHeight = 600; // Screen dimensions
+    Terrain terrain; // Add Terrain object
 };
 
 #endif

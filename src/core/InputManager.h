@@ -2,6 +2,7 @@
 #define INPUTMANAGER_H
 
 #include <GLFW/glfw3.h>
+
 #include "Camera.h"
 #include "Player.h"
 

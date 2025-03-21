@@ -1,6 +1,5 @@
 #ifndef PLAYER_H
 #define PLAYER_H
-#include <GLFW/glfw3.h>
 
 #include "Camera.h"
 

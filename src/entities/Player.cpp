@@ -1,4 +1,5 @@
 #include "Player.h"
+#include <GL/glew.h> 
 #include "Terrain.h"
 
 Player::Player(Camera* camera)

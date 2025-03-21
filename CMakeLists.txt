@@ -24,6 +24,7 @@ add_executable(16BitCraft
     src/core/WindowManager.cpp
     src/core/InputManager.cpp
     src/core/Camera.cpp
+    src/core/Chunk.cpp
     src/core/Shader.cpp
     src/core/Renderer.cpp
     src/entities/Player.cpp

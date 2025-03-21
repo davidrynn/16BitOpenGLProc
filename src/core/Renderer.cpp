@@ -1,6 +1,4 @@
 #include "Renderer.h"
-#include "Shader.h"
-#include "Camera.h"
 
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
@@ -9,7 +7,10 @@
 #include <iostream>
 #include <vector>
 
-Renderer::Renderer(Camera& camera)
+#include "Shader.h"
+#include "Camera.h"
+
+Renderer::Renderer(Camera &camera)
     : VAO(0), VBO(0), EBO(0), camera(camera), shader(nullptr)
 {
 }
@@ -93,6 +94,9 @@ void Renderer::render()
     shader->setMat4("model", model);
     shader->setMat4("view", view);
     shader->setMat4("projection", projection);
+
+    // Render terrain
+    terrain.render();
 
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, terrainIndices.size(), GL_UNSIGNED_INT, 0);
