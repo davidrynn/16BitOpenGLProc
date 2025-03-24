@@ -38,42 +38,60 @@ Shader::Shader(const char* vertexPath, const char* fragmentPath) {
     glCompileShader(fragment);
     checkCompileErrors(fragment, "FRAGMENT");
 
+    // Shader Program
     ID = glCreateProgram();
     glAttachShader(ID, vertex);
     glAttachShader(ID, fragment);
     glLinkProgram(ID);
     checkCompileErrors(ID, "PROGRAM");
-
+ 
+    // Delete the shaders as they're linked into our program now and no longer necessary
     glDeleteShader(vertex);
     glDeleteShader(fragment);
 }
 
-Shader::~Shader() {
+Shader::~Shader()
+{
     glDeleteProgram(ID);
 }
 
-void Shader::use() {
+void Shader::use()
+{
     glUseProgram(ID);
+    if (ID == 0)
+    {
+        std::cerr << "ERROR: Shader::use() called on uninitialized shader." << std::endl;
+        return;
+    }
 }
 
-void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const {
+void Shader::setMat4(const std::string &name, const glm::mat4 &mat) const
+{
     glUniformMatrix4fv(glGetUniformLocation(ID, name.c_str()), 1, GL_FALSE, &mat[0][0]);
 }
 
-void Shader::checkCompileErrors(GLuint shader, std::string type) {
+void Shader::checkCompileErrors(GLuint shader, std::string type)
+{
     GLint success;
     GLchar infoLog[1024];
-    if (type != "PROGRAM") {
+    if (type != "PROGRAM")
+    {
         glGetShaderiv(shader, GL_COMPILE_STATUS, &success);
-        if (!success) {
+        if (!success)
+        {
             glGetShaderInfoLog(shader, 1024, NULL, infoLog);
-            std::cerr << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+            std::cerr << "ERROR::SHADER_COMPILATION_ERROR of type: " << type << "\n"
+                      << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
         }
-    } else {
+    }
+    else
+    {
         glGetProgramiv(shader, GL_LINK_STATUS, &success);
-        if (!success) {
+        if (!success)
+        {
             glGetProgramInfoLog(shader, 1024, NULL, infoLog);
-            std::cerr << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n" << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
+            std::cerr << "ERROR::PROGRAM_LINKING_ERROR of type: " << type << "\n"
+                      << infoLog << "\n -- --------------------------------------------------- -- " << std::endl;
         }
     }
 }

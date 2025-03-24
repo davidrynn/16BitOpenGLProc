@@ -19,6 +19,7 @@ void Renderer::initialize()
     // Create and store shader
     shader = new Shader("shaders/vertex_shader.glsl", "shaders/fragment_shader.glsl");
     shader->use(); // Use the shader once at initialization
+    skyGradient = new SkyGradient();
 
     // Initialize terrain
     terrain.initialize();
@@ -38,7 +39,7 @@ void Renderer::initialize()
 void Renderer::render()
 {
     glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
+    skyGradient->render(); // ✅ Renders fullscreen background
     shader->use(); // Reuse the shader instead of reloading it
 
     // Get the current framebuffer size

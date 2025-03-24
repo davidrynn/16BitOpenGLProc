@@ -8,6 +8,7 @@
 #include "Shader.h"
 #include "Terrain.h"
 #include "Camera.h"
+#include "SkyGradient.h"
 
 class Renderer
 {
@@ -21,6 +22,7 @@ private:
     std::vector<unsigned int> terrainIndices;
     Camera &camera;
     Shader *shader;                            // Pointer to the shader program
+    SkyGradient* skyGradient;
     int screenWidth = 800, screenHeight = 600; // Screen dimensions
     Terrain terrain; // Add Terrain object
 };

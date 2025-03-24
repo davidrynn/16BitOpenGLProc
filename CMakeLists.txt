@@ -27,6 +27,7 @@ add_executable(16BitCraft
     src/core/Chunk.cpp
     src/core/Shader.cpp
     src/core/Renderer.cpp
+    src/core/SkyGradient.cpp
     src/entities/Player.cpp
     src/entities/Entity.cpp
     src/terrain/Terrain.cpp
