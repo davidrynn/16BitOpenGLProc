@@ -50,15 +50,16 @@ float Terrain::getHeightAt(float x, float z) {
 }
 
 void Terrain::initialize() {
-    for (int z = -2; z <= 2; ++z) {
-        for (int x = -2; x <= 2; ++x) {
+    const int numOfChunks = 5; 
+    for (int z = -numOfChunks; z <= numOfChunks; ++z) {
+        for (int x = -numOfChunks; x <= numOfChunks; ++x) {
             chunks[{x, z}] = new Chunk(x, z);
         }
     }
 }
 
-void Terrain::render() {
+void Terrain::render(Shader& shader) {
     for (auto& pair : chunks) {
-        pair.second->render();
+        pair.second->render(shader);
     }
 }

@@ -4,6 +4,7 @@
 #include <vector>
 #include <GL/glew.h>
 #include <glm/glm.hpp>
+#include "Shader.h"
 
 class Chunk {
 public:
@@ -13,7 +14,7 @@ public:
     ~Chunk();
 
     void generate();
-    void render();
+    void render(Shader& shader);
     glm::vec2 getChunkPos() const;
 
 private:
@@ -23,6 +24,7 @@ private:
     std::vector<unsigned int> indices;
 
     void setupBuffers();
+    void drawChunkBoundingBox(); // Add drawChunkBoundingBox method
 };
 
 #endif
