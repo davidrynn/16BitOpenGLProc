@@ -21,6 +21,7 @@ private:
     int chunkX, chunkZ;  // world chunk coords
     GLuint VAO, VBO, EBO;
     std::vector<float> vertices;
+    std::vector<float> normals;
     std::vector<unsigned int> indices;
 
     void setupBuffers();
