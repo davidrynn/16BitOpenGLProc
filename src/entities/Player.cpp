@@ -27,10 +27,20 @@ void Player::moveRight(float delta)
     camera->position += glm::normalize(glm::cross(camera->front, camera->up)) * delta;
 }
 
+void Player::moveUp(float delta)
+{
+    camera->position += camera->up * delta;
+}
+
+void Player::moveDown(float delta)
+{
+    camera->position -= camera->up * delta;
+}
+
 void Player::update()
 {
   // Snap to terrain height
-  float terrainHeight = Terrain::getHeightAt(camera->position.x, camera->position.z);
-  camera->position.y = terrainHeight + 1.0f;  // 1.0f is eye/camera height offset
+//   float terrainHeight = Terrain::getHeightAt(camera->position.x, camera->position.z);
+//   camera->position.y = terrainHeight + 1.0f;  // 1.0f is eye/camera height offset
 
 }

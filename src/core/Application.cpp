@@ -47,7 +47,7 @@ void Application::run()
     {
         InputManager::processKeyboard(window, player);
         InputManager::handleDebugKeys(window);
-        player.update();               
+        player.update();      // currently empty, but can be used for player updates         
         renderer.render();      // Render scene
 
         glfwSwapBuffers(window);

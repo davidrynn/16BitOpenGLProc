@@ -56,7 +56,7 @@ void Renderer::render()
     shader->setMat4("projection", projection);
 
     // Render terrain
-    terrain.render(*shader);
+    terrain.render(*shader, camera.position.x, camera.position.z);
 
     // Check for OpenGL errors
     GLenum error = glGetError();

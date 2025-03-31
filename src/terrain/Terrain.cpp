@@ -58,8 +58,23 @@ void Terrain::initialize() {
     }
 }
 
-void Terrain::render(Shader& shader) {
+void Terrain::render(Shader& shader, float playerX, float playerZ) {
+    const float renderDistance = 50.0f;  // Adjust as needed
+
     for (auto& pair : chunks) {
-        pair.second->render(shader);
+        int chunkX = pair.first.first;
+        int chunkZ = pair.first.second;
+
+        float worldX = chunkX * Chunk::SIZE;
+        float worldZ = chunkZ * Chunk::SIZE;
+
+        float dx = worldX - playerX;
+        float dz = worldZ - playerZ;
+        float distanceSquared = dx * dx + dz * dz;
+
+        if (distanceSquared < renderDistance * renderDistance) {
+            pair.second->render(shader);
+        }
     }
 }
+

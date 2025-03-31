@@ -13,7 +13,7 @@ public:
     static std::vector<unsigned int> generateIndices(int gridSize);
     static float getHeightAt(float x, float z);
     void initialize();
-    void render(Shader& shader);
+    void render(Shader& shader, float playerX, float playerZ);
 
 private:
     std::map<std::pair<int, int>, Chunk*> chunks;

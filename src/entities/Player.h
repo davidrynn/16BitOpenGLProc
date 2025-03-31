@@ -10,6 +10,9 @@ public:
     void moveBackward(float delta);
     void moveLeft(float delta);
     void moveRight(float delta);
+    void moveUp(float delta);
+    void moveDown(float delta);
+
     void update();
 
 

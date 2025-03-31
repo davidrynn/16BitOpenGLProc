@@ -101,14 +101,15 @@ void Chunk::generate()
         normals[i + 1] = normal.y;
         normals[i + 2] = normal.z;
     }
-    for (size_t i = 0; i < normals.size(); i += 3) {
-        glm::vec3 normal(normals[i], normals[i + 1], normals[i + 2]);
-        float length = glm::length(normal);
-        std::cout << "Normal " << i / 3 << ": (" 
-                  << normals[i] << ", " 
-                  << normals[i + 1] << ", " 
-                  << normals[i + 2] << "), Length: " << length << std::endl;
-    }
+    // // Debug: Print normals
+    // for (size_t i = 0; i < normals.size(); i += 3) {
+    //     glm::vec3 normal(normals[i], normals[i + 1], normals[i + 2]);
+    //     float length = glm::length(normal);
+    //     std::cout << "Normal " << i / 3 << ": (" 
+    //               << normals[i] << ", " 
+    //               << normals[i + 1] << ", " 
+    //               << normals[i + 2] << "), Length: " << length << std::endl;
+    // }
 }
 
 void Chunk::setupBuffers()

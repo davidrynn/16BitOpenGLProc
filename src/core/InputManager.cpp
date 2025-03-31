@@ -3,6 +3,7 @@
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "Debug.h"
+#include "WindowManager.h"
 
 // Define the global variables
 bool firstMouse = true;
@@ -17,19 +18,20 @@ bool f2Pressed = false;
 bool f3Pressed = false;
 
 // Define the static camera pointer
-Camera* InputManager::camera = nullptr;
+Camera *InputManager::camera = nullptr;
 
-void InputManager::setCamera(Camera* cam) {
+void InputManager::setCamera(Camera *cam)
+{
     camera = cam;
 }
 
-void InputManager::keyCallback(GLFWwindow* window, int key, int scancode, int action, int mods)
+void InputManager::keyCallback(GLFWwindow *window, int key, int scancode, int action, int mods)
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
 }
 
-void InputManager::mouseCallback(GLFWwindow* window, double xpos, double ypos)
+void InputManager::mouseCallback(GLFWwindow *window, double xpos, double ypos)
 {
     if (firstMouse)
     {
@@ -58,12 +60,13 @@ void InputManager::mouseCallback(GLFWwindow* window, double xpos, double ypos)
         pitch = -89.0f;
 
     // Update camera direction based on yaw and pitch
-    if (camera) {
+    if (camera)
+    {
         camera->updateDirection(yaw, pitch);
     }
 }
 
-void InputManager::processKeyboard(GLFWwindow* window, Player& player)
+void InputManager::processKeyboard(GLFWwindow *window, Player &player)
 {
     const float cameraSpeed = 0.05f; // Adjust accordingly
 
@@ -75,38 +78,49 @@ void InputManager::processKeyboard(GLFWwindow* window, Player& player)
         player.moveLeft(cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         player.moveRight(cameraSpeed);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+        player.moveUp(cameraSpeed);
+    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
+        player.moveDown(cameraSpeed);
 }
 
-void InputManager::handleDebugKeys(GLFWwindow* window) {
+void InputManager::handleDebugKeys(GLFWwindow *window)
+{
     // --- F1: Toggle Wireframe ---
-    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS && !f1Pressed) {
+    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_PRESS && !f1Pressed)
+    {
         wireframeEnabled = !wireframeEnabled;
         glPolygonMode(GL_FRONT_AND_BACK, wireframeEnabled ? GL_LINE : GL_FILL);
         std::cout << "Wireframe mode: " << (wireframeEnabled ? "ON" : "OFF") << std::endl;
         f1Pressed = true;
     }
-    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE) {
+    if (glfwGetKey(window, GLFW_KEY_F1) == GLFW_RELEASE)
+    {
         f1Pressed = false;
     }
 
     // --- F2: Reload Shaders (optional placeholder) ---
-    if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS && !f2Pressed) {
+    if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_PRESS && !f2Pressed)
+    {
         std::cout << "Reloading shaders... (implement if needed)" << std::endl;
         f2Pressed = true;
     }
-    if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_RELEASE) {
+    if (glfwGetKey(window, GLFW_KEY_F2) == GLFW_RELEASE)
+    {
         f2Pressed = false;
     }
 
     // --- F3: Show FPS ---
-    if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS && !f3Pressed) {
+    if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS && !f3Pressed)
+    {
         static float lastTime = glfwGetTime();
         static int frameCount = 0;
 
         float currentTime = glfwGetTime();
         frameCount++;
 
-        if (currentTime - lastTime >= 1.0f) {
+        if (currentTime - lastTime >= 1.0f)
+        {
             std::cout << "FPS: " << frameCount << std::endl;
             frameCount = 0;
             lastTime = currentTime;
@@ -114,7 +128,23 @@ void InputManager::handleDebugKeys(GLFWwindow* window) {
 
         f3Pressed = true;
     }
-    if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_RELEASE) {
+    if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_RELEASE)
+    {
         f3Pressed = false;
+    }
+    
+    // --- F4: Toggle Cursor ---
+    if (glfwGetKey(window, GLFW_KEY_F4) == GLFW_PRESS)
+    {
+        static bool f4PressedLastFrame = false;
+        if (!f4PressedLastFrame)
+        {
+            WindowManager::toggleCursor(window);
+            f4PressedLastFrame = true;
+        }
+        else
+        {
+            f4PressedLastFrame = false;
+        }
     }
 }

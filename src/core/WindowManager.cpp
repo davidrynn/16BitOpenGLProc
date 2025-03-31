@@ -5,6 +5,7 @@
 #include <glm/gtc/matrix_transform.hpp>
 
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);  // Forward vector
+bool WindowManager::cursorLocked = true;
 
 GLFWwindow* WindowManager::createWindow(int width, int height, const char* title) {
     if (!glfwInit()) {
@@ -24,7 +25,8 @@ GLFWwindow* WindowManager::createWindow(int width, int height, const char* title
         return nullptr;
     }
     glfwMakeContextCurrent(window);
-    
+    glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+
     return window;
 }
 
@@ -79,3 +81,9 @@ void WindowManager::mouseCallback(GLFWwindow* window, double xpos, double ypos) 
     front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
     cameraFront = glm::normalize(front);
 }
+
+void WindowManager::toggleCursor(GLFWwindow* window) {
+    cursorLocked = !cursorLocked;
+    glfwSetInputMode(window, GLFW_CURSOR, cursorLocked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+}
+
