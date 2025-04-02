@@ -19,6 +19,7 @@ public:
 
 private:
     int chunkX, chunkZ;  // world chunk coords
+    float spacing; // Adjust this value to control the density of the terrain
     GLuint VAO, VBO, EBO;
     std::vector<float> vertices;
     std::vector<float> normals;

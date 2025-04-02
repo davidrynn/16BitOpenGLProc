@@ -17,6 +17,10 @@ public:
 
 private:
     static Camera *camera; // Static pointer to the camera object
+    static void handleWireframeKey(GLFWwindow *window);
+    static void handleReloadShadersKey(GLFWwindow *window);
+    static void handleShowFPSKey(GLFWwindow *window);
+    static void handleToggleCursorKey(GLFWwindow *window);
 };
 
 extern bool firstMouse;

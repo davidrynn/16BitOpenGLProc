@@ -1,24 +1,34 @@
 #include "Terrain.h"
 #include <cmath>
 #include <iostream>
+#include "TerrainNoiseFactory.h"
 
-std::vector<float> Terrain::generateTerrain(int gridSize) {
-    std::vector<float> vertices;
-    float scale = 2.0f / (gridSize - 1);  // Normalize to range -1 to 1
+// std::vector<float> Terrain::generateTerrain(int gridSize, int chunkX, int chunkZ) {
+//     std::vector<float> vertices;
+//     float scale = 2.0f / (gridSize - 1);  // Normalize to range -1 to 1
+//     float halfGrid = gridSize / 2.0f;
 
-    for (int z = 0; z < gridSize; z++) {
-        for (int x = 0; x < gridSize; x++) {
-            float xpos = x * scale - 1.0f;
-            float zpos = z * scale - 1.0f;
-            float ypos = sin(xpos * 3.0f) * cos(zpos * 3.0f) * 0.2f; // Wavy effect
+//     for (int z = 0; z < gridSize; ++z) {
+//         for (int x = 0; x < gridSize; ++x) {
+//             // Absolute world position
+//             int worldX = x + chunkX * gridSize;
+//             int worldZ = z + chunkZ * gridSize;
 
-            vertices.push_back(xpos);
-            vertices.push_back(ypos);
-            vertices.push_back(zpos);
-        }
-    }
-    return vertices;
-}
+//             float xpos = x * scale - halfGrid;
+//             float zpos = z * scale - halfGrid;
+
+//             TerrainType terrainType = getTerrainTypeAt(worldX, worldZ);
+//             auto noise = TerrainNoiseFactory::createNoiseFunction(terrainType);
+
+//             float ypos = noise ? noise->getHeight(worldX, worldZ) : 0.0f;
+
+//             vertices.push_back(xpos);
+//             vertices.push_back(ypos);
+//             vertices.push_back(zpos);
+//         }
+//     }
+//     return vertices;
+// }
 
 std::vector<unsigned int> Terrain::generateIndices(int gridSize) {
     std::vector<unsigned int> indices;
@@ -43,10 +53,23 @@ std::vector<unsigned int> Terrain::generateIndices(int gridSize) {
     return indices;
 }
 
-float Terrain::getHeightAt(float x, float z) {
-    // Simple sine-based height as placeholder
-    float scale = 0.2f;
-    return std::sin(x * scale) * std::cos(z * scale) * 2.0f;
+TerrainType Terrain::getTerrainTypeAt(int worldX, int worldZ) {
+    // Example biome pattern based on world coordinates
+    int pattern = (worldX / 50 + worldZ / 50) % 4;
+
+    switch (pattern) {
+        case 0: return TerrainType::Plains;
+        case 1: return TerrainType::Mountains;
+        case 2: return TerrainType::Desert;
+        case 3: return TerrainType::Snow;
+        default: return TerrainType::Plains;
+    }
+}
+
+float Terrain::getHeightAt(float worldX, float worldZ) {
+    TerrainType terrainType = getTerrainTypeAt(worldX, worldZ);
+    auto noise = TerrainNoiseFactory::createNoiseFunction(terrainType);
+    return noise ? noise->getHeight(worldX, worldZ) : 0.0f;
 }
 
 void Terrain::initialize() {

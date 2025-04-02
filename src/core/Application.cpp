@@ -6,7 +6,7 @@
 Application::Application()
     : camera(glm::vec3(0.0f, 0.5f, 3.0f)), player(&camera), renderer(camera)
 {
-    window = WindowManager::createWindow(800, 600, "16BitCraft");
+    window = WindowManager::createWindow(1200, 900, "16BitCraft");
     if (!window)
     {
         std::cerr << "Failed to create GLFW window" << std::endl;

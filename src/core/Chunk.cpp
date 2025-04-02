@@ -1,14 +1,13 @@
 #include "Chunk.h"
-#include "Debug.h"
-#include "Shader.h" // Include Shader to set uniforms
 #include <cmath>
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "Debug.h"
+#include "Shader.h" // Include Shader to set uniforms
+#include "Terrain.h"
 
-extern bool wireframeEnabled; // Declare the external variable
-
-Chunk::Chunk(int x, int z) : chunkX(x), chunkZ(z)
+Chunk::Chunk(int x, int z) : chunkX(x), chunkZ(z), spacing(1.0f)
 {
     generate();
     setupBuffers();
@@ -26,7 +25,6 @@ void Chunk::generate()
     vertices.clear();
     indices.clear();
     normals.clear();      // Add a container for normals
-    float spacing = 1.0f; // Adjust this value to control the density of the terrain
 
     // Generate vertices and heights
     for (int z = 0; z <= SIZE; ++z)
@@ -38,7 +36,7 @@ void Chunk::generate()
             float worldX = chunkX * SIZE * spacing + localX;
             float worldZ = chunkZ * SIZE * spacing + localZ;
 
-            float height = std::sin(worldX * 0.1f) * std::cos(worldZ * 0.1f) * 2.0f;
+            float height = Terrain::getHeightAt(worldX, worldZ);
 
             vertices.push_back(localX);
             vertices.push_back(height);
@@ -105,9 +103,9 @@ void Chunk::generate()
     // for (size_t i = 0; i < normals.size(); i += 3) {
     //     glm::vec3 normal(normals[i], normals[i + 1], normals[i + 2]);
     //     float length = glm::length(normal);
-    //     std::cout << "Normal " << i / 3 << ": (" 
-    //               << normals[i] << ", " 
-    //               << normals[i + 1] << ", " 
+    //     std::cout << "Normal " << i / 3 << ": ("
+    //               << normals[i] << ", "
+    //               << normals[i + 1] << ", "
     //               << normals[i + 2] << "), Length: " << length << std::endl;
     // }
 }
@@ -154,9 +152,21 @@ void Chunk::render(Shader &shader)
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(chunkX * SIZE, 0.0f, chunkZ * SIZE));
     shader.setMat4("model", model);
 
+    // Enable wireframe mode if wireframeEnabled is true
+    if (wireframeEnabled)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Render terrain as wireframe
+    }
+
     // Regular terrain rendering
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+
+    // Reset to fill mode after rendering
+    if (wireframeEnabled)
+    {
+        glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Reset to normal rendering mode
+    }
 
     // Optional debug: draw bounding box
     if (wireframeEnabled)
@@ -168,86 +178,26 @@ void Chunk::render(Shader &shader)
 void Chunk::drawChunkBoundingBox()
 {
     float yMin = -1.0f, yMax = 10.0f;
-    float minX = chunkX * SIZE;
-    float minZ = chunkZ * SIZE;
-    float maxX = minX + SIZE;
-    float maxZ = minZ + SIZE;
+    float minX = chunkX * SIZE * spacing; // Incorporate spacing
+    float minZ = chunkZ * SIZE * spacing; // Incorporate spacing
+    float maxX = minX + (SIZE + 1) * spacing;
+    float maxZ = minZ + (SIZE + 1) * spacing;
 
     float boxVertices[] = {
-        minX,
-        yMin,
-        minZ,
-        maxX,
-        yMin,
-        minZ,
-        maxX,
-        yMin,
-        minZ,
-        maxX,
-        yMin,
-        maxZ,
-        maxX,
-        yMin,
-        maxZ,
-        minX,
-        yMin,
-        maxZ,
-        minX,
-        yMin,
-        maxZ,
-        minX,
-        yMin,
-        minZ,
+        minX, yMin, minZ, maxX, yMin, minZ,
+        maxX, yMin, minZ, maxX, yMin, maxZ,
+        maxX, yMin, maxZ, minX, yMin, maxZ,
+        minX, yMin, maxZ, minX, yMin, minZ,
 
-        minX,
-        yMax,
-        minZ,
-        maxX,
-        yMax,
-        minZ,
-        maxX,
-        yMax,
-        minZ,
-        maxX,
-        yMax,
-        maxZ,
-        maxX,
-        yMax,
-        maxZ,
-        minX,
-        yMax,
-        maxZ,
-        minX,
-        yMax,
-        maxZ,
-        minX,
-        yMax,
-        minZ,
+        minX, yMax, minZ, maxX, yMax, minZ,
+        maxX, yMax, minZ, maxX, yMax, maxZ,
+        maxX, yMax, maxZ, minX, yMax, maxZ,
+        minX, yMax, maxZ, minX, yMax, minZ,
 
-        minX,
-        yMin,
-        minZ,
-        minX,
-        yMax,
-        minZ,
-        maxX,
-        yMin,
-        minZ,
-        maxX,
-        yMax,
-        minZ,
-        maxX,
-        yMin,
-        maxZ,
-        maxX,
-        yMax,
-        maxZ,
-        minX,
-        yMin,
-        maxZ,
-        minX,
-        yMax,
-        maxZ,
+        minX, yMin, minZ, minX, yMax, minZ,
+        maxX, yMin, minZ, maxX, yMax, minZ,
+        maxX, yMin, maxZ, maxX, yMax, maxZ,
+        minX, yMin, maxZ, minX, yMax, maxZ,
     };
 
     GLuint boxVAO, boxVBO;
