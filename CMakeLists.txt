@@ -1,7 +1,7 @@
 cmake_minimum_required(VERSION 3.10)
 
 project(16BitCraft_OpenGL)
-set(CMAKE_CXX_STANDARD 14)
+set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED True)
 
 # Find OpenGL dependencies
@@ -30,6 +30,8 @@ add_executable(16BitCraft
     src/core/SkyGradient.cpp
     src/entities/Player.cpp
     src/entities/Entity.cpp
+    src/terrain/Biome.cpp
+    src/terrain/BiomeManager.cpp
     src/terrain/MountainsNoise.cpp
     src/terrain/PlainsNoise.cpp
     src/terrain/Terrain.cpp

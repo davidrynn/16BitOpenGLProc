@@ -7,6 +7,7 @@ enum class TerrainType {
     Mountains,
     Desert,
     Snow,
+    Count
     // Add more as needed
 };
 

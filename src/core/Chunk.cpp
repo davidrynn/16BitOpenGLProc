@@ -180,8 +180,8 @@ void Chunk::drawChunkBoundingBox()
     float yMin = -1.0f, yMax = 10.0f;
     float minX = chunkX * SIZE * spacing; // Incorporate spacing
     float minZ = chunkZ * SIZE * spacing; // Incorporate spacing
-    float maxX = minX + (SIZE + 1) * spacing;
-    float maxZ = minZ + (SIZE + 1) * spacing;
+    float maxX = minX + SIZE * spacing;
+    float maxZ = minZ + SIZE * spacing;    
 
     float boxVertices[] = {
         minX, yMin, minZ, maxX, yMin, minZ,

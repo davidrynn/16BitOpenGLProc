@@ -1,17 +1,30 @@
-// TerrainNoiseFactory.cpp
 #include "TerrainNoiseFactory.h"
-
-#include <memory> // Required for std::make_unique
 #include "MountainsNoise.h"
 #include "PlainsNoise.h"
-#include "TerrainType.h" // Ensure TerrainType is included
-// ... other includes
 
-std::unique_ptr<NoiseFunction> TerrainNoiseFactory::createNoiseFunction(TerrainType type) {
-    switch (type) {
-        case TerrainType::Mountains: return std::make_unique<MountainsNoise>();
-        case TerrainType::Plains:    return std::make_unique<PlainsNoise>();
-        // Add others
-        default: return std::make_unique<PlainsNoise>();
+std::unordered_map<TerrainType, std::unique_ptr<NoiseFunction>> TerrainNoiseFactory::noiseCache;
+
+const NoiseFunction* TerrainNoiseFactory::getNoise(TerrainType type) {
+    auto it = noiseCache.find(type);
+    if (it != noiseCache.end()) {
+        return it->second.get();
     }
+
+    std::unique_ptr<NoiseFunction> noise;
+
+    switch (type) {
+        case TerrainType::Mountains:
+            noise = std::make_unique<MountainsNoise>();
+            break;
+        case TerrainType::Plains:
+            noise = std::make_unique<PlainsNoise>();
+            break;
+        default:
+            noise = std::make_unique<PlainsNoise>(); // Fallback
+            break;
+    }
+
+    const NoiseFunction* ptr = noise.get();
+    noiseCache[type] = std::move(noise);
+    return ptr;
 }
