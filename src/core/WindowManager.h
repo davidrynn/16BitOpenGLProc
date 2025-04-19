@@ -15,7 +15,7 @@ class WindowManager
 public:
     static GLFWwindow *createWindow(int width, int height, const char *title);
     static void processInput(GLFWwindow *window, glm::vec3 &cameraPos, glm::vec3 &cameraFront);
-    static void mouseCallback(GLFWwindow *window, double xpos, double ypos);
+    static void mouseCallback(GLFWwindow *window, float xpos, float ypos);
     static void toggleCursor(GLFWwindow *window);
 
 private:

@@ -17,7 +17,7 @@ bool f1Pressed = false;
 bool f2Pressed = false;
 bool f3Pressed = false;
 bool f4Pressed = false;
-float lastTime = glfwGetTime();
+float lastTime = static_cast<float>(glfwGetTime());
 int frameCount = 0;
 
 // Define the static camera pointer
@@ -36,18 +36,21 @@ void InputManager::keyCallback(GLFWwindow *window, int key, int scancode, int ac
 
 void InputManager::mouseCallback(GLFWwindow *window, double xpos, double ypos)
 {
+
+    float xposF = static_cast<float>(xpos);
+    float yposF = static_cast<float>(ypos);
     if (firstMouse)
     {
-        lastX = xpos;
-        lastY = ypos;
+        lastX = xposF;
+        lastY = yposF;
         firstMouse = false;
     }
 
-    float xoffset = xpos - lastX;
-    float yoffset = lastY - ypos; // Reversed since y-coordinates go from bottom to top
+    float xoffset = xposF - lastX;
+    float yoffset = lastY - yposF; // Reversed since y-coordinates go from bottom to top
 
-    lastX = xpos;
-    lastY = ypos;
+    lastX = xposF;
+    lastY = yposF;
 
     const float sensitivity = 0.1f; // Adjust sensitivity as needed
     xoffset *= sensitivity;
@@ -132,7 +135,7 @@ void InputManager::handleShowFPSKey(GLFWwindow *window)
     // --- F3: Show FPS ---
     if (glfwGetKey(window, GLFW_KEY_F3) == GLFW_PRESS && !f3Pressed)
     {
-        float currentTime = glfwGetTime();
+        float currentTime = static_cast<float>(glfwGetTime());
         frameCount++;
 
         if (currentTime - lastTime >= 1.0f)

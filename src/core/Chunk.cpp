@@ -163,7 +163,7 @@ void Chunk::render(Shader &shader)
 
     // Regular terrain rendering
     glBindVertexArray(VAO);
-    glDrawElements(GL_TRIANGLES, indices.size(), GL_UNSIGNED_INT, 0);
+    glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, nullptr);
 
     // Reset to fill mode after rendering
     if (wireframeEnabled)

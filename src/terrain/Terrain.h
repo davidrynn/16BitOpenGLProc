@@ -13,7 +13,7 @@ class Terrain {
 public:
     static std::vector<float> generateTerrain(int gridSize, int chunkX, int chunkZ);
     static std::vector<unsigned int> generateIndices(int gridSize);
-    static TerrainType getTerrainTypeAt(int worldX, int worldZ);
+    static TerrainType getTerrainTypeAt(float worldX, float worldZ);
     static float getHeightAt(float worldX, float worldZ);
     static void generateChunkData(int chunkX, int chunkZ,
         std::vector<float>& outVertices,

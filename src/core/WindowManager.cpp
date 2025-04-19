@@ -51,7 +51,7 @@ void WindowManager::processInput(GLFWwindow* window, glm::vec3& cameraPos, glm::
 }
 
 
-void WindowManager::mouseCallback(GLFWwindow* window, double xpos, double ypos) {
+void WindowManager::mouseCallback(GLFWwindow* window, float xpos, float ypos) {
     if (firstMouse) {
         lastX = xpos;
         lastY = ypos;

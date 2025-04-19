@@ -61,7 +61,7 @@ std::vector<unsigned int> Terrain::generateIndices(int gridSize)
     return indices;
 }
 
-TerrainType Terrain::getTerrainTypeAt(int worldX, int worldZ)
+TerrainType Terrain::getTerrainTypeAt(float worldX, float worldZ)
 {
     Biome biome = biomeManager.getBiomeForPosition(worldX, worldZ);
     return biome.getDominantTerrain();
@@ -141,7 +141,7 @@ void Terrain::generateChunkData(int chunkX, int chunkZ,
             float worldZ = static_cast<float>(chunkZ * CHUNK_SIZE + z);
 
             // Get terrain type from biome manager
-            TerrainType type = biomeManager.getTerrainType(static_cast<int>(worldX), static_cast<int>(worldZ));
+            TerrainType type = biomeManager.getTerrainType(worldX, worldZ);
             const auto *noise = TerrainNoiseFactory::getNoise(type);
 
             float height = noise ? noise->getHeight(worldX, worldZ) : 0.0f;
