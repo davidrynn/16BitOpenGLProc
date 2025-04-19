@@ -14,7 +14,7 @@ class Renderer
 {
 public:
     Renderer(Camera &camera);
-    void initialize();
+    void initialize(Terrain &terrainRef);
     void render();
 
 private:

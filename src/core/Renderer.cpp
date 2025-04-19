@@ -10,12 +10,13 @@
 #include "Camera.h"
 
 Renderer::Renderer(Camera &camera)
-    : VAO(0), VBO(0), EBO(0), camera(camera), shader(nullptr)
+    : VAO(0), VBO(0), EBO(0), camera(camera), shader(nullptr), terrain()
 {
 }
 
-void Renderer::initialize()
+void Renderer::initialize(Terrain &terrainRef)
 {
+    this->terrain = terrainRef;
     // Create and store shader
     shader = new Shader("shaders/terrain_vertex.glsl", "shaders/terrain_fragment.glsl");
     shader->use(); // Use the shader once at initialization
@@ -23,9 +24,6 @@ void Renderer::initialize()
 
     shader->setVec3("baseColor", glm::vec3(0.4f, 0.8f, 0.4f)); // grassy color
     skyGradient = new SkyGradient();
-
-    // Initialize terrain
-    terrain.initialize();
 
     // Enable depth testing
     glEnable(GL_DEPTH_TEST);

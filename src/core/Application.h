@@ -13,11 +13,14 @@ public:
     Application();
     ~Application();
     void run();
+    void updateGame(float deltaTime);
+
 private:
     GLFWwindow* window;
     Camera camera;
     Renderer renderer;
     Player player;
+    Terrain terrain;
 };
 
 #endif

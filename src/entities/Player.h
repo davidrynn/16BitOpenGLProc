@@ -14,9 +14,6 @@ public:
     void moveDown(float delta);
 
     void update();
-
-
-private:
     Camera* camera;
 };
 

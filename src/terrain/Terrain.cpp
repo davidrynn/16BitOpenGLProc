@@ -111,8 +111,9 @@ void Terrain::render(Shader &shader, float playerX, float playerZ)
         int chunkX = pair.first.first;
         int chunkZ = pair.first.second;
 
-        float worldX = chunkX * ChunkConstants::SIZE;
-        float worldZ = chunkZ * ChunkConstants::SIZE;
+        float worldX = (chunkX + 0.5f) * ChunkConstants::SIZE; // Using 0.5f to set World position in middle of chunk.
+        float worldZ = (chunkZ + 0.5f) * ChunkConstants::SIZE;
+
 
         float dx = worldX - playerX;
         float dz = worldZ - playerZ;
@@ -130,7 +131,7 @@ void Terrain::generateChunkData(int chunkX, int chunkZ,
                                 std::vector<unsigned int> &outIndices,
                                 std::vector<float> &outNormals)
 {
-    const int CHUNK_SIZE = 16;
+    const int CHUNK_SIZE = ChunkConstants::SIZE;
 
     for (int z = 0; z <= CHUNK_SIZE; ++z)
     {
@@ -176,3 +177,43 @@ void Terrain::generateChunkData(int chunkX, int chunkZ,
         }
     }
 }
+
+void Terrain::updateChunks(float playerX, float playerZ)
+{
+    int playerChunkX = static_cast<int>(floor(playerX / ChunkConstants::SIZE));
+    int playerChunkZ = static_cast<int>(floor(playerZ / ChunkConstants::SIZE));
+
+    const int viewDistance = 2;  // Adjust based on desired chunk visibility
+
+    // Load chunks explicitly
+    for (int z = -viewDistance; z <= viewDistance; ++z)
+    {
+        for (int x = -viewDistance; x <= viewDistance; ++x)
+        {
+            int chunkX = playerChunkX + x;
+            int chunkZ = playerChunkZ + z;
+
+            if (chunks.find({chunkX, chunkZ}) == chunks.end())
+                chunks[{chunkX, chunkZ}] = new Chunk(chunkX, chunkZ);
+        }
+    }
+
+    // Unload chunks explicitly
+    for (auto it = chunks.begin(); it != chunks.end();)
+    {
+        int chunkX = it->first.first;
+        int chunkZ = it->first.second;
+
+        if (abs(chunkX - playerChunkX) > viewDistance ||
+            abs(chunkZ - playerChunkZ) > viewDistance)
+        {
+            delete it->second;
+            it = chunks.erase(it);
+        }
+        else
+        {
+            ++it;
+        }
+    }
+}
+

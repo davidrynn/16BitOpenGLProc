@@ -32,7 +32,8 @@ Application::Application()
     InputManager::setCamera(&camera);
 
     // Initialize other components
-    renderer.initialize();
+    terrain.initialize();
+    renderer.initialize(terrain);
 }
 
 Application::~Application()
@@ -53,4 +54,10 @@ void Application::run()
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
+}
+
+void Application::updateGame(float deltaTime)
+{
+    player.update();
+    terrain.updateChunks(player.camera->position.x, player.camera->position.z);
 }

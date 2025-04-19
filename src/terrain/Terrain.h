@@ -22,6 +22,7 @@ public:
 
     void initialize();
     void render(Shader& shader, float playerX, float playerZ);
+    void Terrain::updateChunks(float playerX, float playerZ);
 
 private:
     std::map<std::pair<int, int>, Chunk*> chunks;
