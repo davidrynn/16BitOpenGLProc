@@ -45,3 +45,5 @@ target_link_libraries(16BitCraft GLEW::GLEW OpenGL::GL glfw)
 
 # Define GL_SILENCE_DEPRECATION to silence OpenGL deprecation warnings on macOS
 add_definitions(-DGL_SILENCE_DEPRECATION)
+
+add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)

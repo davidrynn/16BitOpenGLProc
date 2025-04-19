@@ -3,9 +3,12 @@
 #include <iostream>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "ChunkConstants.h"
 #include "Debug.h"
 #include "Shader.h" // Include Shader to set uniforms
 #include "Terrain.h"
+
+static constexpr int SIZE = ChunkConstants::SIZE;
 
 Chunk::Chunk(int x, int z) : chunkX(x), chunkZ(z), spacing(1.0f)
 {

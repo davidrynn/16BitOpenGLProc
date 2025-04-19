@@ -1,21 +1,20 @@
 {
-    "configurations": [
-        {
-            "name": "Mac",
-            "includePath": [
-                "${workspaceFolder}/src",
-                "${workspaceFolder}/src/core",
-                "${workspaceFolder}/src/entities",
-                "${workspaceFolder}/src/terrain",
-                "/opt/homebrew/include",  // Apple Silicon (M1/M2)
-                "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include"
-            ],
-            "defines": ["GLEW_STATIC"],
-            "compilerPath": "/usr/bin/clang++",
-            "cStandard": "c11",
-            "cppStandard": "c++14",
-            "intelliSenseMode": "macos-clang-x64"
-        }
-    ],
-    "version": 4
+  "configurations": [
+    {
+      "name": "Win",
+      "includePath": [
+        "${workspaceFolder}/src",
+        "${workspaceFolder}/src/core",
+        "${workspaceFolder}/src/entities",
+        "${workspaceFolder}/src/terrain",
+        "C:/Users/david/vcpkg/installed/x64-windows/include"
+      ],
+      "defines": ["GLEW_STATIC"],
+      "compilerPath": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.*/bin/Hostx64/x64/cl.exe",
+      "cStandard": "c11",
+      "cppStandard": "c++17",
+      "intelliSenseMode": "windows-msvc-x64"
+    }
+  ],
+  "version": 4
 }

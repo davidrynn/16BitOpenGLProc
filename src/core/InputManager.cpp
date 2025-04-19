@@ -71,7 +71,7 @@ void InputManager::mouseCallback(GLFWwindow *window, double xpos, double ypos)
 
 void InputManager::processKeyboard(GLFWwindow *window, Player &player)
 {
-    const float cameraSpeed = 0.05f; // Adjust accordingly
+    const float cameraSpeed = 0.15f; // Adjust accordingly
 
     if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
         player.moveForward(cameraSpeed);

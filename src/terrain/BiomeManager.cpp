@@ -1,5 +1,7 @@
 #include "BiomeManager.h"
+#include <glm/gtx/norm.hpp>
 #include <glm/gtc/random.hpp> // For linearRand
+#include "TerrainConstants.h"
 
 void BiomeManager::initialize(int numBiomes, int worldSize) {
     biomeCenters.clear();
@@ -13,23 +15,22 @@ void BiomeManager::initialize(int numBiomes, int worldSize) {
     }
 }
 
-Biome BiomeManager::getBiomeForPosition(float x, float z) const {
-    glm::vec2 pos(x, z);
-    float minDistance = std::numeric_limits<float>::max();
+const Biome& BiomeManager::getBiomeForPosition(float x, float z) const {
+    float minDistSq = std::numeric_limits<float>::max();
     const Biome* closest = nullptr;
 
+    glm::vec2 pos(x, z);
     for (const auto& [center, biome] : biomeCenters) {
-        float distance = glm::distance(center, pos);
-        if (distance < minDistance) {
-            minDistance = distance;
+        float distSq = glm::distance2(pos, center);
+        if (distSq < minDistSq) {
+            minDistSq = distSq;
             closest = &biome;
         }
     }
 
-    return closest ? *closest : Biome(TerrainType::Plains); // Default fallback
+    return *closest;
 }
 
-// BiomeManager.cpp
 TerrainType BiomeManager::getTerrainType(float x, float z) const {
     return getBiomeForPosition(x, z).getDominantTerrain();
 }

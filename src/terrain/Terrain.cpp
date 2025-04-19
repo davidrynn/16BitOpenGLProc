@@ -2,6 +2,8 @@
 #include <cmath>
 #include <iostream>
 #include "BiomeManager.h"
+#include "ChunkConstants.h"
+#include "TerrainConstants.h"
 #include "TerrainNoiseFactory.h"
 
 static inline BiomeManager biomeManager;
@@ -33,11 +35,14 @@ static inline BiomeManager biomeManager;
 //     return vertices;
 // }
 
-std::vector<unsigned int> Terrain::generateIndices(int gridSize) {
+std::vector<unsigned int> Terrain::generateIndices(int gridSize)
+{
     std::vector<unsigned int> indices;
 
-    for (int z = 0; z < gridSize - 1; z++) {
-        for (int x = 0; x < gridSize - 1; x++) {
+    for (int z = 0; z < gridSize - 1; z++)
+    {
+        for (int x = 0; x < gridSize - 1; x++)
+        {
             int topLeft = z * gridSize + x;
             int topRight = topLeft + 1;
             int bottomLeft = (z + 1) * gridSize + x;
@@ -56,7 +61,8 @@ std::vector<unsigned int> Terrain::generateIndices(int gridSize) {
     return indices;
 }
 
-TerrainType Terrain::getTerrainTypeAt(int worldX, int worldZ) {
+TerrainType Terrain::getTerrainTypeAt(int worldX, int worldZ)
+{
     Biome biome = biomeManager.getBiomeForPosition(worldX, worldZ);
     return biome.getDominantTerrain();
 }
@@ -74,56 +80,68 @@ TerrainType Terrain::getTerrainTypeAt(int worldX, int worldZ) {
 //     }
 // }
 
-float Terrain::getHeightAt(float worldX, float worldZ) {
+float Terrain::getHeightAt(float worldX, float worldZ)
+{
     TerrainType terrainType = getTerrainTypeAt(worldX, worldZ);
     auto noise = TerrainNoiseFactory::getNoise(terrainType);
     return noise ? noise->getHeight(worldX, worldZ) : 0.0f;
 }
 
-void Terrain::initialize() {
-    biomeManager.initialize(4, 1000);
-    const int numOfChunks = 5; 
-    for (int z = -numOfChunks; z <= numOfChunks; ++z) {
-        for (int x = -numOfChunks; x <= numOfChunks; ++x) {
+void Terrain::initialize()
+{
+    biomeManager.initialize(
+        TerrainConstants::DEFAULT_BIOME_COUNT,
+        TerrainConstants::BIOME_WORLD_WIDTH);
+    const int numOfChunks = TerrainConstants::INITIAL_CHUNK_RADIUS;
+    for (int z = -numOfChunks; z <= numOfChunks; ++z)
+    {
+        for (int x = -numOfChunks; x <= numOfChunks; ++x)
+        {
             chunks[{x, z}] = new Chunk(x, z);
         }
     }
 }
 
-void Terrain::render(Shader& shader, float playerX, float playerZ) {
-    const float renderDistance = 50.0f;  // Adjust as needed
+void Terrain::render(Shader &shader, float playerX, float playerZ)
+{
+    const float renderDistance = 50.0f; // Adjust as needed
 
-    for (auto& pair : chunks) {
+    for (auto &pair : chunks)
+    {
         int chunkX = pair.first.first;
         int chunkZ = pair.first.second;
 
-        float worldX = chunkX * Chunk::SIZE;
-        float worldZ = chunkZ * Chunk::SIZE;
+        float worldX = chunkX * ChunkConstants::SIZE;
+        float worldZ = chunkZ * ChunkConstants::SIZE;
 
         float dx = worldX - playerX;
         float dz = worldZ - playerZ;
         float distanceSquared = dx * dx + dz * dz;
 
-        if (distanceSquared < renderDistance * renderDistance) {
+        if (distanceSquared < renderDistance * renderDistance)
+        {
             pair.second->render(shader);
         }
     }
 }
 
 void Terrain::generateChunkData(int chunkX, int chunkZ,
-                                 std::vector<float>& outVertices,
-                                 std::vector<unsigned int>& outIndices,
-                                 std::vector<float>& outNormals) {
+                                std::vector<float> &outVertices,
+                                std::vector<unsigned int> &outIndices,
+                                std::vector<float> &outNormals)
+{
     const int CHUNK_SIZE = 16;
 
-    for (int z = 0; z <= CHUNK_SIZE; ++z) {
-        for (int x = 0; x <= CHUNK_SIZE; ++x) {
-            float worldX = (chunkX * CHUNK_SIZE) + x;
-            float worldZ = (chunkZ * CHUNK_SIZE) + z;
+    for (int z = 0; z <= CHUNK_SIZE; ++z)
+    {
+        for (int x = 0; x <= CHUNK_SIZE; ++x)
+        {
+            float worldX = static_cast<float>(chunkX * CHUNK_SIZE + x);
+            float worldZ = static_cast<float>(chunkZ * CHUNK_SIZE + z);
 
             // Get terrain type from biome manager
-            TerrainType type = biomeManager.getTerrainType(worldX, worldZ);
-            const auto* noise = TerrainNoiseFactory::getNoise(type);
+            TerrainType type = biomeManager.getTerrainType(static_cast<int>(worldX), static_cast<int>(worldZ));
+            const auto *noise = TerrainNoiseFactory::getNoise(type);
 
             float height = noise ? noise->getHeight(worldX, worldZ) : 0.0f;
 
@@ -139,8 +157,10 @@ void Terrain::generateChunkData(int chunkX, int chunkZ,
     }
 
     // Generate indices
-    for (int z = 0; z < CHUNK_SIZE; ++z) {
-        for (int x = 0; x < CHUNK_SIZE; ++x) {
+    for (int z = 0; z < CHUNK_SIZE; ++z)
+    {
+        for (int x = 0; x < CHUNK_SIZE; ++x)
+        {
             int topLeft = z * (CHUNK_SIZE + 1) + x;
             int topRight = topLeft + 1;
             int bottomLeft = (z + 1) * (CHUNK_SIZE + 1) + x;
@@ -156,5 +176,3 @@ void Terrain::generateChunkData(int chunkX, int chunkZ,
         }
     }
 }
-
-

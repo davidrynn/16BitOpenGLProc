@@ -20,7 +20,7 @@ const NoiseFunction* TerrainNoiseFactory::getNoise(TerrainType type) {
             noise = std::make_unique<PlainsNoise>();
             break;
         default:
-            noise = std::make_unique<PlainsNoise>(); // Fallback
+            noise = std::make_unique<MountainsNoise>(); // Fallback
             break;
     }
 

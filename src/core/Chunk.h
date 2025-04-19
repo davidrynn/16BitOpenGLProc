@@ -8,7 +8,6 @@
 
 class Chunk {
 public:
-    static const int SIZE = 32;
 
     Chunk(int x, int z);  // world chunk coordinates
     ~Chunk();
