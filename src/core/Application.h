@@ -4,6 +4,7 @@
 #include <GLFW/glfw3.h>
 #include "WindowManager.h"
 #include "Camera.h"
+#include "LoadingBar.h"
 #include "Renderer.h"
 #include "Terrain.h"
 #include "Player.h"

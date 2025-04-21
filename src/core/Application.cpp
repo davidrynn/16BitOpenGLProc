@@ -1,4 +1,6 @@
 #include "Application.h"
+#include <thread>
+#include <chrono>
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include "InputManager.h"
@@ -6,7 +8,7 @@
 Application::Application()
     : camera(glm::vec3(0.0f, 0.5f, 3.0f)), player(&camera), renderer(camera)
 {
-    window = WindowManager::createWindow(1200, 900, "16BitCraft");
+    window = WindowManager::createWindow(1280, 720, "16BitCraft");
     if (!window)
     {
         std::cerr << "Failed to create GLFW window" << std::endl;
@@ -31,9 +33,6 @@ Application::Application()
     // Set the camera in the InputManager
     InputManager::setCamera(&camera);
 
-    // Initialize other components
-    terrain.initialize();
-    renderer.initialize(terrain);
 }
 
 Application::~Application()
@@ -43,14 +42,28 @@ Application::~Application()
 
 void Application::run()
 {
+        // Show loading bar while terrain initializes incrementally
+        {
+            LoadingBar loadingBar("shaders/ui/loading.vert.glsl", "shaders/ui/loading.frag.glsl");
+            loadingBar.initialize();
+            terrain.initialize([&](float progress) {
+                glDisable(GL_DEPTH_TEST);
+                loadingBar.render(progress, window);
+                glEnable(GL_DEPTH_TEST);
+                glfwSwapBuffers(window);
+                glfwPollEvents();
+            });
+        }
+        
+        renderer.initialize(terrain);
 
+        
     while (!glfwWindowShouldClose(window))
     {
         InputManager::processKeyboard(window, player);
         InputManager::handleDebugKeys(window);
-        player.update();      // currently empty, but can be used for player updates         
-        renderer.render();      // Render scene
-
+        player.update();   // currently empty, but can be used for player updates
+        renderer.render(); // Render scene
         glfwSwapBuffers(window);
         glfwPollEvents();
     }

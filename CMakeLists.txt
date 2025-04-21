@@ -25,6 +25,7 @@ add_executable(16BitCraft
     src/core/InputManager.cpp
     src/core/Camera.cpp
     src/core/Chunk.cpp
+    src/core/LoadingBar.cpp
     src/core/Shader.cpp
     src/core/Renderer.cpp
     src/core/SkyGradient.cpp

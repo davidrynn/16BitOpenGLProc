@@ -1,4 +1,5 @@
 #include "TerrainNoiseFactory.h"
+#include <iostream> // for logging
 #include "MountainsNoise.h"
 #include "PlainsNoise.h"
 
@@ -20,8 +21,9 @@ const NoiseFunction* TerrainNoiseFactory::getNoise(TerrainType type) {
             noise = std::make_unique<PlainsNoise>();
             break;
         default:
-            noise = std::make_unique<MountainsNoise>(); // Fallback
-            break;
+        std::cerr << "[WARN] getNoise: No noise function defined for TerrainType: "
+        << static_cast<int>(type) << std::endl;
+        return nullptr; // <-- Do NOT fallback silently
     }
 
     const NoiseFunction* ptr = noise.get();

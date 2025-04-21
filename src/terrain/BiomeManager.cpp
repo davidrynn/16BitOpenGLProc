@@ -39,3 +39,26 @@ const std::vector<std::pair<glm::vec2, Biome>>& BiomeManager::getBiomeCenters() 
     return biomeCenters;
 }
 
+std::map<TerrainType, float> BiomeManager::getBiomeWeightsAt(float x, float z) const {
+    std::map<TerrainType, float> weights;
+
+    const float influenceRadius = 200.0f;
+    float totalWeight = 0.0f;
+    glm::vec2 pos(x, z);
+
+    for (const auto& [center, biome] : biomeCenters) {
+        float distSq = glm::distance2(center, pos);
+        if (distSq < influenceRadius * influenceRadius) {
+            float weight = 1.0f / (distSq + 1.0f); // +1 to avoid div by 0
+            weights[biome.getDominantTerrain()] += weight;
+            totalWeight += weight;
+        }
+    }
+
+    // Normalize
+    for (auto& [type, weight] : weights) {
+        weight /= totalWeight;
+    }
+
+    return weights;
+}
