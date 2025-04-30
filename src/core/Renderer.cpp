@@ -10,13 +10,13 @@
 #include "Camera.h"
 
 Renderer::Renderer(Camera &camera)
-    : VAO(0), VBO(0), EBO(0), camera(camera), shader(nullptr), terrain()
+    : VAO(0), VBO(0), EBO(0), camera(camera), shader(nullptr)
 {
 }
 
-void Renderer::initialize(Terrain &terrainRef)
+void Renderer::initialize(std::shared_ptr<Terrain> terrainPtr)
 {
-    this->terrain = terrainRef;
+    this->terrain = terrainPtr;
     // Create and store shader
     shader = new Shader("shaders/terrain_vertex.glsl", "shaders/terrain_fragment.glsl");
     shader->use(); // Use the shader once at initialization
@@ -54,7 +54,7 @@ void Renderer::render()
     shader->setMat4("projection", projection);
 
     // Render terrain
-    terrain.render(*shader, camera.position.x, camera.position.z);
+    terrain->render(*shader, camera.position.x, camera.position.z);
 
     // Check for OpenGL errors
     GLenum error = glGetError();

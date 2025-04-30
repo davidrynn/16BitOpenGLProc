@@ -14,7 +14,7 @@ class Renderer
 {
 public:
     Renderer(Camera &camera);
-    void initialize(Terrain &terrainRef);
+    void initialize(std::shared_ptr<Terrain> terrainPtr);
     void render();
 
 private:
@@ -24,7 +24,7 @@ private:
     Shader *shader;                            // Pointer to the shader program
     SkyGradient* skyGradient;
     int screenWidth = 800, screenHeight = 600; // Screen dimensions
-    Terrain terrain; // Add Terrain object
+    std::shared_ptr<Terrain> terrain;
 };
 
 #endif

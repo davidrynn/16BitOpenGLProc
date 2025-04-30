@@ -4,9 +4,13 @@
 #include <iostream>
 #include <GLFW/glfw3.h>
 #include "InputManager.h"
+#include "ChunkConstants.h"
 
 Application::Application()
-    : camera(glm::vec3(0.0f, 0.5f, 3.0f)), player(&camera), renderer(camera)
+    : terrain(std::make_shared<Terrain>()),
+    camera(glm::vec3(0.0f, 0.5f, 3.0f)), 
+    player(&camera), 
+    renderer(camera)
 {
     window = WindowManager::createWindow(1280, 720, "16BitCraft");
     if (!window)
@@ -42,11 +46,13 @@ Application::~Application()
 
 void Application::run()
 {
+    terrain = std::make_shared<Terrain>();
         // Show loading bar while terrain initializes incrementally
         {
             LoadingBar loadingBar("shaders/ui/loading.vert.glsl", "shaders/ui/loading.frag.glsl");
             loadingBar.initialize();
-            terrain.initialize([&](float progress) {
+            auto noiseFactory = std::make_shared<TerrainNoiseFactory>();
+            terrain->initialize(noiseFactory, [&](float progress) {
                 glDisable(GL_DEPTH_TEST);
                 loadingBar.render(progress, window);
                 glEnable(GL_DEPTH_TEST);
@@ -58,11 +64,16 @@ void Application::run()
         renderer.initialize(terrain);
 
         
+    float lastFrameTime = static_cast<float>(glfwGetTime());
     while (!glfwWindowShouldClose(window))
     {
+        float currentFrameTime = static_cast<float>(glfwGetTime());
+        float deltaTime = currentFrameTime - lastFrameTime;
+        lastFrameTime = currentFrameTime;
+
         InputManager::processKeyboard(window, player);
         InputManager::handleDebugKeys(window);
-        player.update();   // currently empty, but can be used for player updates
+        updateGame(deltaTime); 
         renderer.render(); // Render scene
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -72,5 +83,18 @@ void Application::run()
 void Application::updateGame(float deltaTime)
 {
     player.update();
-    terrain.updateChunks(player.camera->position.x, player.camera->position.z);
+    terrain->updateChunksAroundPlayer(player.camera->position.x, player.camera->position.z);
+
+    // // Get player position
+    // float x = player.camera->position.x;
+    // float z = player.camera->position.z;
+
+    // // Calculate chunk coordinates (assuming each chunk is size `chunkSize`)
+    // int chunkX = static_cast<int>(floor(x / ChunkConstants::SIZE));
+    // int chunkZ = static_cast<int>(floor(z / ChunkConstants::SIZE));
+
+    // bool surrounded = terrain->hasChunksOnAllSides(chunkX, chunkZ);
+
+    // std::cout << "Player Position: (" << x << ", " << z << ") | "
+    //           << "Surrounded: " << (surrounded ? "Yes" : "No") << std::endl;
 }

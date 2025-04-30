@@ -10,7 +10,7 @@
 
 static constexpr int SIZE = ChunkConstants::SIZE;
 
-Chunk::Chunk(int x, int z) : chunkX(x), chunkZ(z), spacing(1.0f)
+Chunk::Chunk(int x, int z, std::shared_ptr<Terrain> terrain) : chunkX(x), chunkZ(z), terrain(std::move(terrain)), spacing(1.0f)
 {
     generate();
     setupBuffers();
@@ -39,7 +39,7 @@ void Chunk::generate()
             float worldX = chunkX * SIZE * spacing + localX;
             float worldZ = chunkZ * SIZE * spacing + localZ;
 
-            float height = Terrain::getHeightAt(worldX, worldZ);
+            float height = terrain->getHeightAt(worldX, worldZ);
 
             vertices.push_back(localX);
             vertices.push_back(height);

@@ -35,8 +35,11 @@ add_executable(16BitCraft
     src/terrain/BiomeManager.cpp
     src/terrain/MountainsNoise.cpp
     src/terrain/PlainsNoise.cpp
+    src/terrain/DesertNoise.cpp
+    src/terrain/SnowNoise.cpp
     src/terrain/Terrain.cpp
     src/terrain/TerrainNoiseFactory.cpp
+    src/terrain/FastNoiseLiteWrapper.cpp
 )
 # Copy shaders folder to build directory
 file(COPY ${CMAKE_SOURCE_DIR}/shaders DESTINATION ${CMAKE_BINARY_DIR})

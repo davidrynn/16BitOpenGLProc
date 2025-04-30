@@ -1,7 +1,7 @@
-#ifndef APPLICATION_H
-#define APPLICATION_H
+#pragma once
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
+#include <memory>
 #include "WindowManager.h"
 #include "Camera.h"
 #include "LoadingBar.h"
@@ -21,7 +21,5 @@ private:
     Camera camera;
     Renderer renderer;
     Player player;
-    Terrain terrain;
+    std::shared_ptr<Terrain> terrain;
 };
-
-#endif

@@ -1,6 +1,5 @@
 #include "Player.h"
 #include <GL/glew.h> 
-#include "Terrain.h"
 
 Player::Player(Camera* camera)
     : camera(camera)
@@ -39,8 +38,6 @@ void Player::moveDown(float delta)
 
 void Player::update()
 {
-  // Snap to terrain height
-//   float terrainHeight = Terrain::getHeightAt(camera->position.x, camera->position.z);
-//   camera->position.y = terrainHeight + 1.0f;  // 1.0f is eye/camera height offset
+
 
 }
