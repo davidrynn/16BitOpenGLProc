@@ -43,13 +43,17 @@ TerrainType Terrain::getTerrainTypeAt(float worldX, float worldZ)
 float Terrain::getHeightAt(float worldX, float worldZ)
 {
     TerrainType terrainType = getTerrainTypeAt(worldX, worldZ);
-    auto noise = TerrainNoiseFactory::getNoise(terrainType);
-    return noise ? noise->getHeight(worldX, worldZ) : 0.0f;
+    assert(noiseFactory && "TerrainNoiseFactory is null!");
+    auto noiseFn = noiseFactory->getNoise(terrainType);
+    return noiseFn ? noiseFn(worldX, worldZ) : 0.0f;
 }
+//    auto noiseFn = noiseFactory.getNoise(terrainType);
 
-void Terrain::initialize(std::function<void(float)> progressCallback)
-{
-    biomeManager.initialize(
+
+void Terrain::initialize(std::shared_ptr<TerrainNoiseFactory> sharedNoiseFactory, std::function<void(float)> progressCallback) {
+    noiseFactory = sharedNoiseFactory;
+    //noiseFactory = sharedNoiseFactory.get();        
+        biomeManager.initialize(
         TerrainConstants::DEFAULT_BIOME_COUNT,
         TerrainConstants::BIOME_WORLD_WIDTH);
     const int numOfChunks = TerrainConstants::INITIAL_CHUNK_RADIUS;
@@ -59,7 +63,7 @@ void Terrain::initialize(std::function<void(float)> progressCallback)
     {
         for (int x = -numOfChunks; x <= numOfChunks; ++x)
         {
-            chunks[{x, z}] = new Chunk(x, z);
+            chunks[{x, z}] = new Chunk(x, z, shared_from_this());
             if (progressCallback) {
                 float progress = static_cast<float>(++currentStep) / totalSteps;
                 progressCallback(progress);
@@ -70,7 +74,7 @@ void Terrain::initialize(std::function<void(float)> progressCallback)
 
 void Terrain::render(Shader &shader, float playerX, float playerZ)
 {
-    const float renderDistance = 50.0f; // Adjust as needed
+    const float renderDistance = TerrainConstants::TERRAIN_RENDER_DISTANCE;
 
     for (auto &pair : chunks)
     {
@@ -118,7 +122,7 @@ void Terrain::updateChunks(float playerX, float playerZ)
             int chunkZ = playerChunkZ + z;
 
             if (chunks.find({chunkX, chunkZ}) == chunks.end())
-                chunks[{chunkX, chunkZ}] = new Chunk(chunkX, chunkZ);
+                chunks[{chunkX, chunkZ}] = new Chunk(chunkX, chunkZ, shared_from_this());   
         }
     }
 
@@ -141,3 +145,29 @@ void Terrain::updateChunks(float playerX, float playerZ)
     }
 }
 
+void Terrain::updateChunksAroundPlayer(float playerX, float playerZ)
+{
+    int currentChunkX = static_cast<int>(floor(playerX / ChunkConstants::SIZE));
+    int currentChunkZ = static_cast<int>(floor(playerZ / ChunkConstants::SIZE));
+
+    if (lastPlayerChunk.first != currentChunkX || lastPlayerChunk.second != currentChunkZ)
+    {
+        updateChunks(playerX, playerZ);
+        lastPlayerChunk = {currentChunkX, currentChunkZ};
+    }
+}
+
+bool Terrain::hasChunksOnAllSides(int chunkX, int chunkZ) const
+{
+    auto currentChunk = chunks.find({chunkX, chunkZ});
+    if (currentChunk == chunks.end())
+    {
+        // Current chunk doesn't exist; can't check neighbors reliably
+        return false;
+    }
+
+    return chunks.find({chunkX + 1, chunkZ}) != chunks.end() &&
+           chunks.find({chunkX - 1, chunkZ}) != chunks.end() &&
+           chunks.find({chunkX, chunkZ + 1}) != chunks.end() &&
+           chunks.find({chunkX, chunkZ - 1}) != chunks.end();
+}

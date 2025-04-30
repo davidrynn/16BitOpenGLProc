@@ -3,10 +3,10 @@
 #include <memory>
 #include "BaseNoise.h"
 
-class PlainsNoise : public BaseNoise
+class SnowNoise : public BaseNoise
 {
 public:
-    explicit PlainsNoise(std::shared_ptr<BaseNoise> baseNoise);
+    explicit SnowNoise(std::shared_ptr<BaseNoise> baseNoise);
 
     float getNoise(float x, float z) const override;
 

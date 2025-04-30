@@ -1,17 +1,24 @@
-#ifndef TERRAIN_NOISE_FACTORY_H
-#define TERRAIN_NOISE_FACTORY_H
+#pragma once
 
-#include "TerrainType.h"
-#include "NoiseFunction.h"
-#include <memory>
 #include <unordered_map>
+#include <functional>
+#include <memory>
+#include "TerrainType.h"
+#include "BaseNoise.h"
 
-class TerrainNoiseFactory {
+class TerrainNoiseFactory
+{
 public:
-    static const NoiseFunction* getNoise(TerrainType type);
+    TerrainNoiseFactory();
+
+    // Prevent copying
+    TerrainNoiseFactory(const TerrainNoiseFactory&) = delete;
+    TerrainNoiseFactory& operator=(const TerrainNoiseFactory&) = delete;
+
+    std::function<float(float, float)> getNoise(TerrainType type) const;
 
 private:
-    static std::unordered_map<TerrainType, std::unique_ptr<NoiseFunction>> noiseCache;
+    std::unordered_map<TerrainType, std::function<float(float, float)>> heightFunctions;
+    std::unordered_map<TerrainType, std::unique_ptr<BaseNoise>> noiseInstances;
+    std::shared_ptr<BaseNoise> sharedBase;
 };
-
-#endif
