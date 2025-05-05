@@ -3,6 +3,7 @@
 #include <iostream>
 #include "BiomeManager.h"
 #include "ChunkConstants.h"
+#include "DefaultChunkFactory.h"
 #include "TerrainConstants.h"
 #include "TerrainNoiseFactory.h"
 
@@ -50,9 +51,15 @@ float Terrain::getHeightAt(float worldX, float worldZ)
 //    auto noiseFn = noiseFactory.getNoise(terrainType);
 
 
+void Terrain::setChunkFactory(std::shared_ptr<IChunkFactory> factory) {
+    chunkFactory = std::move(factory);
+}
+
 void Terrain::initialize(std::shared_ptr<TerrainNoiseFactory> sharedNoiseFactory, std::function<void(float)> progressCallback) {
+    if (!chunkFactory) {
+        chunkFactory = std::make_shared<DefaultChunkFactory>();
+    }    
     noiseFactory = sharedNoiseFactory;
-    //noiseFactory = sharedNoiseFactory.get();        
         biomeManager.initialize(
         TerrainConstants::DEFAULT_BIOME_COUNT,
         TerrainConstants::BIOME_WORLD_WIDTH);
@@ -63,7 +70,7 @@ void Terrain::initialize(std::shared_ptr<TerrainNoiseFactory> sharedNoiseFactory
     {
         for (int x = -numOfChunks; x <= numOfChunks; ++x)
         {
-            chunks[{x, z}] = new Chunk(x, z, shared_from_this());
+            chunks[{x, z}] = chunkFactory->createChunk(x, z, shared_from_this());
             if (progressCallback) {
                 float progress = static_cast<float>(++currentStep) / totalSteps;
                 progressCallback(progress);
@@ -72,29 +79,53 @@ void Terrain::initialize(std::shared_ptr<TerrainNoiseFactory> sharedNoiseFactory
     }
 }
 
-void Terrain::render(Shader &shader, float playerX, float playerZ)
-{
-    const float renderDistance = TerrainConstants::TERRAIN_RENDER_DISTANCE;
+const std::map<std::pair<int, int>, std::shared_ptr<Chunk>>& Terrain::getChunks() const {
+    return chunks;
+}
 
-    for (auto &pair : chunks)
-    {
-        int chunkX = pair.first.first;
-        int chunkZ = pair.first.second;
-
-        float worldX = (chunkX + 0.5f) * ChunkConstants::SIZE; // Using 0.5f to set World position in middle of chunk.
-        float worldZ = (chunkZ + 0.5f) * ChunkConstants::SIZE;
-
-
-        float dx = worldX - playerX;
-        float dz = worldZ - playerZ;
-        float distanceSquared = dx * dx + dz * dz;
-
-        if (distanceSquared < renderDistance * renderDistance)
-        {
-            pair.second->render(shader);
+std::vector<std::shared_ptr<Chunk>> Terrain::getVisibleChunks(float playerX, float playerZ) const {
+    std::vector<std::shared_ptr<Chunk>> visible;
+    for (const auto& [coord, chunk] : chunks) {
+        float dist = glm::distance(glm::vec2(coord.first * 16, coord.second * 16), glm::vec2(playerX, playerZ));
+        if (dist <= TerrainConstants::TERRAIN_RENDER_DISTANCE) {
+            visible.push_back(chunk);
         }
     }
+    return visible;
 }
+
+void Terrain::loadChunk(int chunkX, int chunkZ)
+{
+    auto it = chunks.find({chunkX, chunkZ});
+    if (it == chunks.end())
+    {
+        chunks[{chunkX, chunkZ}] = chunkFactory->createChunk(chunkX, chunkZ, shared_from_this());
+    }
+}
+
+// void Terrain::render(Shader &shader, float playerX, float playerZ)
+// {
+//     const float renderDistance = TerrainConstants::TERRAIN_RENDER_DISTANCE;
+
+//     for (auto &pair : chunks)
+//     {
+//         int chunkX = pair.first.first;
+//         int chunkZ = pair.first.second;
+
+//         float worldX = (chunkX + 0.5f) * ChunkConstants::SIZE; // Using 0.5f to set World position in middle of chunk.
+//         float worldZ = (chunkZ + 0.5f) * ChunkConstants::SIZE;
+
+
+//         float dx = worldX - playerX;
+//         float dz = worldZ - playerZ;
+//         float distanceSquared = dx * dx + dz * dz;
+
+//         if (distanceSquared < renderDistance * renderDistance)
+//         {
+//             pair.second->render(shader);
+//         }
+//     }
+// }
 
 
 
@@ -111,7 +142,7 @@ void Terrain::updateChunks(float playerX, float playerZ)
     int playerChunkX = static_cast<int>(floor(playerX / ChunkConstants::SIZE));
     int playerChunkZ = static_cast<int>(floor(playerZ / ChunkConstants::SIZE));
 
-    const int viewDistance = 2;  // Adjust based on desired chunk visibility
+    const int viewDistance = TerrainConstants::VIEW_DISTANCE;  // Adjust based on desired chunk visibility
 
     // Load chunks explicitly
     for (int z = -viewDistance; z <= viewDistance; ++z)
@@ -122,7 +153,7 @@ void Terrain::updateChunks(float playerX, float playerZ)
             int chunkZ = playerChunkZ + z;
 
             if (chunks.find({chunkX, chunkZ}) == chunks.end())
-                chunks[{chunkX, chunkZ}] = new Chunk(chunkX, chunkZ, shared_from_this());   
+                chunks[{chunkX, chunkZ}] = chunkFactory->createChunk(chunkX, chunkZ, shared_from_this());
         }
     }
 
@@ -135,7 +166,6 @@ void Terrain::updateChunks(float playerX, float playerZ)
         if (abs(chunkX - playerChunkX) > viewDistance ||
             abs(chunkZ - playerChunkZ) > viewDistance)
         {
-            delete it->second;
             it = chunks.erase(it);
         }
         else

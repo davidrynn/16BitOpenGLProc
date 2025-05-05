@@ -1,35 +1,31 @@
-#ifndef CHUNK_H
-#define CHUNK_H
-
+#pragma once
 #include <memory>
 #include <vector>
-#include <GL/glew.h>
+#include <GL/glew.h> // Will want to remove this for testing.
 #include <glm/glm.hpp>
-#include "Shader.h"
 
-class Terrain;  // Forward declaration
+class Shader;
+class Terrain;
 
 class Chunk {
 public:
-    Chunk(int x, int z, std::shared_ptr<Terrain> terrain);  // Accept Terrain as reference
+    Chunk(int x, int z, std::shared_ptr<Terrain> terrain, bool renderingEnabled = true);
     ~Chunk();
-
-    void render(Shader& shader);
-    glm::vec2 getChunkPos() const;
+    void generate();
+    void uploadToGPU();
+    void render(Shader& shader) const;
+    bool isUploaded() const { return uploaded; }
 
 private:
+    void drawChunkBoundingBox() const;
+
+    bool renderingEnabled;
+    bool uploaded = false;
     int chunkX, chunkZ;
     float spacing;
     GLuint VAO, VBO, EBO;
+    std::shared_ptr<Terrain> terrain;
     std::vector<float> vertices;
     std::vector<float> normals;
     std::vector<unsigned int> indices;
-
-    std::shared_ptr<Terrain> terrain;  // Store reference
-
-    void generate();         // No longer needs parameter
-    void setupBuffers();
-    void drawChunkBoundingBox();
 };
-
-#endif

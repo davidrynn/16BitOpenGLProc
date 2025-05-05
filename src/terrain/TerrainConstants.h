@@ -18,6 +18,9 @@ namespace TerrainConstants {
     // Rendering distance
     constexpr float TERRAIN_RENDER_DISTANCE = 50.0f;
 
+    // View distance?
+    constexpr int VIEW_DISTANCE = 10;
+
 }
 
 #endif

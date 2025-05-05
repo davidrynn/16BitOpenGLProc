@@ -1,6 +1,7 @@
 #include "Chunk.h"
 #include <cmath>
 #include <iostream>
+#include <GL/glew.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
 #include "ChunkConstants.h"
@@ -10,10 +11,10 @@
 
 static constexpr int SIZE = ChunkConstants::SIZE;
 
-Chunk::Chunk(int x, int z, std::shared_ptr<Terrain> terrain) : chunkX(x), chunkZ(z), terrain(std::move(terrain)), spacing(1.0f)
+Chunk::Chunk(int x, int z, std::shared_ptr<Terrain> terrain, bool renderingEnabled) : chunkX(x), chunkZ(z), terrain(std::move(terrain)), spacing(1.0f)
 {
     generate();
-    setupBuffers();
+    if (renderingEnabled) uploadToGPU();
 }
 
 Chunk::~Chunk()
@@ -113,8 +114,9 @@ void Chunk::generate()
     // }
 }
 
-void Chunk::setupBuffers()
+void Chunk::uploadToGPU()
 {
+    if (!renderingEnabled) return;
     std::vector<float> vertexData;
     for (size_t i = 0; i < vertices.size() / 3; ++i)
     {
@@ -147,10 +149,13 @@ void Chunk::setupBuffers()
     glEnableVertexAttribArray(1);
 
     glBindVertexArray(0);
+    uploaded = true;
+
 }
 
-void Chunk::render(Shader &shader)
+void Chunk::render(Shader &shader) const
 {
+    if (!renderingEnabled) return;
     // Apply translation based on chunk world coordinates
     glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(chunkX * SIZE, 0.0f, chunkZ * SIZE));
     shader.setMat4("model", model);
@@ -178,7 +183,7 @@ void Chunk::render(Shader &shader)
     }
 }
 
-void Chunk::drawChunkBoundingBox()
+void Chunk::drawChunkBoundingBox() const
 {
     float yMin = -1.0f, yMax = 10.0f;
     float minX = chunkX * SIZE * spacing; // Incorporate spacing
@@ -225,9 +230,4 @@ void Chunk::drawChunkBoundingBox()
 
     glDeleteBuffers(1, &boxVBO);
     glDeleteVertexArrays(1, &boxVAO);
-}
-
-glm::vec2 Chunk::getChunkPos() const
-{
-    return glm::vec2(chunkX, chunkZ);
 }

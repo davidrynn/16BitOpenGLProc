@@ -7,6 +7,7 @@
         "${workspaceFolder}/src/core",
         "${workspaceFolder}/src/entities",
         "${workspaceFolder}/src/terrain",
+        "${workspaceFolder}/build/_deps/googletest-src/googletest/include",
         "C:/Users/david/vcpkg/installed/x64-windows/include"
       ],
       "defines": ["GLEW_STATIC"],

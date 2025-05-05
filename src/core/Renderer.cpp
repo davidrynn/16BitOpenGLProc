@@ -54,8 +54,12 @@ void Renderer::render()
     shader->setMat4("projection", projection);
 
     // Render terrain
-    terrain->render(*shader, camera.position.x, camera.position.z);
-
+    for (const auto& pair : terrain->getChunks()) {
+        const std::shared_ptr<Chunk>& chunk = pair.second;
+        if (chunk && chunk->isUploaded()) {
+            chunk->render(*shader);
+        }
+    }
     // Check for OpenGL errors
     GLenum error = glGetError();
     if (error != GL_NO_ERROR)
