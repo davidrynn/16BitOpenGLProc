@@ -11,6 +11,17 @@
         "cwd": "${workspaceFolder}",
         "console": "integratedTerminal",
         "preLaunchTask": "build"
+      },
+      {
+        "name": "Run Terrain Tests",
+        "type": "cppvsdbg",
+        "request": "launch",
+        "program": "${workspaceFolder}/build/Debug/tests.exe",
+        "args": ["--gtest_filter=TerrainTest.*"],
+        "stopAtEntry": false,
+        "cwd": "${workspaceFolder}/build",
+        "environment": [],
+        "externalConsole": false,
       }
     ]
   }

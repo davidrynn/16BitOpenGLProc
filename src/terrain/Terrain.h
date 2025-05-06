@@ -26,11 +26,11 @@ public:
     void updateChunksAroundPlayer(float playerX, float playerZ);
     // void render(Shader &shader, float playerX, float playerZ);
     bool Terrain::hasChunksOnAllSides(int chunkX, int chunkZ) const;
+    std::shared_ptr<IChunkFactory> chunkFactory;
 
     
 private:
     std::map<std::pair<int, int>, std::shared_ptr<Chunk>> chunks;
-    std::shared_ptr<IChunkFactory> chunkFactory;
     std::shared_ptr<TerrainNoiseFactory> noiseFactory;
 
     std::pair<int, int> lastPlayerChunk = { INT_MIN, INT_MIN };

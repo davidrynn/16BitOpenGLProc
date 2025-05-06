@@ -109,3 +109,8 @@ target_link_libraries(tests
 
 include(GoogleTest)
 gtest_discover_tests(tests)
+
+target_include_directories(tests PRIVATE
+    tests
+    tests/terrain
+)

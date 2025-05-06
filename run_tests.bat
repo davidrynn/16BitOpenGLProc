@@ -1,3 +1,5 @@
+set PATH=%PATH%;C:\Users\david\vcpkg\installed\x64-windows\bin
+
 @echo off
 REM Save the current directory
 set CURRENT_DIR=%cd%
@@ -14,7 +16,7 @@ if %errorlevel% neq 0 (
 )
 
 REM Run the tests using ctest
-ctest --output-on-failure
+ctest --output-on-failure -C Debug
 if %errorlevel% neq 0 (
     echo Tests failed. Exiting.
     cd %CURRENT_DIR%
