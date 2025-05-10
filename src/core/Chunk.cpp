@@ -14,7 +14,8 @@ static constexpr int SIZE = ChunkConstants::SIZE;
 Chunk::Chunk(int x, int z, std::shared_ptr<Terrain> terrain, bool renderingEnabled) : chunkX(x), chunkZ(z), terrain(std::move(terrain)), spacing(1.0f)
 {
     generate();
-    if (renderingEnabled) uploadToGPU();
+    if (renderingEnabled)
+        uploadToGPU();
 }
 
 Chunk::~Chunk()
@@ -28,95 +29,90 @@ void Chunk::generate()
 {
     vertices.clear();
     indices.clear();
-    normals.clear();      // Add a container for normals
-
-    // Generate vertices and heights
-    for (int z = 0; z <= SIZE; ++z)
-    {
-        for (int x = 0; x <= SIZE; ++x)
-        {
-            float localX = x * spacing;
-            float localZ = z * spacing;
-            float worldX = chunkX * SIZE * spacing + localX;
-            float worldZ = chunkZ * SIZE * spacing + localZ;
-
-            float height = terrain->getHeightAt(worldX, worldZ);
-
-            vertices.push_back(localX);
-            vertices.push_back(height);
-            vertices.push_back(localZ);
-
+    normals.clear();
             // Initialize normals to zero (to accumulate them later)
             normals.push_back(0.0f);
             normals.push_back(0.0f);
             normals.push_back(0.0f);
+    // 1. Generate vertices: (SIZE + 1) x (SIZE + 1) grid
+    for (int z = 0; z <= SIZE; ++z)
+    {
+        for (int x = 0; x <= SIZE; ++x)
+        {
+            float worldX = chunkX * SIZE + static_cast<float>(x);
+            float worldZ = chunkZ * SIZE + static_cast<float>(z);
+            // int worldX = chunkX * SIZE + x;
+            // int worldZ = chunkZ * SIZE + z;
+
+            float height = terrain->getHeightAt(worldX, worldZ);
+            vertices.push_back(static_cast<float>(x));
+            vertices.push_back(height);
+            vertices.push_back(static_cast<float>(z));
         }
     }
 
-    // Generate indices and calculate normals
+    // 2. Generate indices for two triangles per quad
+    int vertsPerRow = SIZE + 1;
     for (int z = 0; z < SIZE; ++z)
     {
         for (int x = 0; x < SIZE; ++x)
         {
-            int start = z * (SIZE + 1) + x;
+            int topLeft = z * vertsPerRow + x;
+            int topRight = topLeft + 1;
+            int bottomLeft = (z + 1) * vertsPerRow + x;
+            int bottomRight = bottomLeft + 1;
 
             // Triangle 1
-            indices.push_back(start);
-            indices.push_back(start + 1);
-            indices.push_back(start + SIZE + 1);
+            indices.push_back(topLeft);
+            indices.push_back(bottomLeft);
+            indices.push_back(topRight);
 
             // Triangle 2
-            indices.push_back(start + 1);
-            indices.push_back(start + SIZE + 2);
-            indices.push_back(start + SIZE + 1);
-
-            // Calculate normals for both triangles
-            glm::vec3 v0(vertices[start * 3], vertices[start * 3 + 1], vertices[start * 3 + 2]);
-            glm::vec3 v1(vertices[(start + 1) * 3], vertices[(start + 1) * 3 + 1], vertices[(start + 1) * 3 + 2]);
-            glm::vec3 v2(vertices[(start + SIZE + 1) * 3], vertices[(start + SIZE + 1) * 3 + 1], vertices[(start + SIZE + 1) * 3 + 2]);
-            glm::vec3 v3(vertices[(start + SIZE + 2) * 3], vertices[(start + SIZE + 2) * 3 + 1], vertices[(start + SIZE + 2) * 3 + 2]);
-
-            // Normalize each triangle's normal before accumulation
-            glm::vec3 normal1 = glm::normalize(glm::cross(v1 - v0, v2 - v0));
-            glm::vec3 normal2 = glm::normalize(glm::cross(v3 - v1, v2 - v1));
-
-            // Accumulate normals for each vertex
-            for (int i = 0; i < 3; ++i)
-            {
-                normals[start * 3 + i] += normal1[i];
-                normals[(start + 1) * 3 + i] += normal1[i];
-                normals[(start + SIZE + 1) * 3 + i] += normal1[i];
-
-                normals[(start + 1) * 3 + i] += normal2[i];
-                normals[(start + SIZE + 2) * 3 + i] += normal2[i];
-                normals[(start + SIZE + 1) * 3 + i] += normal2[i];
-            }
+            indices.push_back(topRight);
+            indices.push_back(bottomLeft);
+            indices.push_back(bottomRight);
         }
     }
 
-    // Normalize all accumulated normals
+    normals.resize(vertices.size(), 0.0f); // Initialize with zeroes
+
+    for (size_t i = 0; i < indices.size(); i += 3)
+    {
+        int i0 = indices[i];
+        int i1 = indices[i + 1];
+        int i2 = indices[i + 2];
+
+        glm::vec3 v0(vertices[i0 * 3], vertices[i0 * 3 + 1], vertices[i0 * 3 + 2]);
+        glm::vec3 v1(vertices[i1 * 3], vertices[i1 * 3 + 1], vertices[i1 * 3 + 2]);
+        glm::vec3 v2(vertices[i2 * 3], vertices[i2 * 3 + 1], vertices[i2 * 3 + 2]);
+
+        glm::vec3 edge1 = v1 - v0;
+        glm::vec3 edge2 = v2 - v0;
+        glm::vec3 normal = glm::normalize(glm::cross(edge1, edge2));
+
+        for (int idx : {i0, i1, i2})
+        {
+            normals[idx * 3 + 0] += normal.x;
+            normals[idx * 3 + 1] += normal.y;
+            normals[idx * 3 + 2] += normal.z;
+        }
+    }
+
+    // Normalize accumulated normals
     for (size_t i = 0; i < normals.size(); i += 3)
     {
-        glm::vec3 normal(normals[i], normals[i + 1], normals[i + 2]);
-        normal = glm::normalize(normal);
-        normals[i] = normal.x;
-        normals[i + 1] = normal.y;
-        normals[i + 2] = normal.z;
+        glm::vec3 n(normals[i], normals[i + 1], normals[i + 2]);
+        n = glm::normalize(n);
+        normals[i] = n.x;
+        normals[i + 1] = n.y;
+        normals[i + 2] = n.z;
     }
-    // // Debug: Print normals
-    // for (size_t i = 0; i < normals.size(); i += 3) {
-    //     glm::vec3 normal(normals[i], normals[i + 1], normals[i + 2]);
-    //     float length = glm::length(normal);
-    //     std::cout << "Normal " << i / 3 << ": ("
-    //               << normals[i] << ", "
-    //               << normals[i + 1] << ", "
-    //               << normals[i + 2] << "), Length: " << length << std::endl;
-    // }
 }
 
 void Chunk::uploadToGPU()
 {
-    if (!renderingEnabled) return;
+    if (!renderingEnabled)
+        return;
     std::vector<float> vertexData;
     for (size_t i = 0; i < vertices.size() / 3; ++i)
     {
@@ -150,14 +146,15 @@ void Chunk::uploadToGPU()
 
     glBindVertexArray(0);
     uploaded = true;
-
 }
 
 void Chunk::render(Shader &shader) const
 {
-    if (!renderingEnabled) return;
+    if (!renderingEnabled)
+        return;
     // Apply translation based on chunk world coordinates
-    glm::mat4 model = glm::translate(glm::mat4(1.0f), glm::vec3(chunkX * SIZE, 0.0f, chunkZ * SIZE));
+    glm::mat4 model = glm::translate(glm::mat4(1.0f),
+                                     glm::vec3(chunkX * SIZE * spacing, 0.0f, chunkZ * SIZE * spacing));
     shader.setMat4("model", model);
 
     // Enable wireframe mode if wireframeEnabled is true
@@ -169,7 +166,9 @@ void Chunk::render(Shader &shader) const
     // Regular terrain rendering
     glBindVertexArray(VAO);
     glDrawElements(GL_TRIANGLES, static_cast<GLsizei>(indices.size()), GL_UNSIGNED_INT, nullptr);
-
+    GLenum err = glGetError();
+    if (err != GL_NO_ERROR)
+        std::cerr << "OpenGL error after draw: " << err << std::endl;
     // Reset to fill mode after rendering
     if (wireframeEnabled)
     {
@@ -189,23 +188,83 @@ void Chunk::drawChunkBoundingBox() const
     float minX = chunkX * SIZE * spacing; // Incorporate spacing
     float minZ = chunkZ * SIZE * spacing; // Incorporate spacing
     float maxX = minX + SIZE * spacing;
-    float maxZ = minZ + SIZE * spacing;    
+    float maxZ = minZ + SIZE * spacing;
 
     float boxVertices[] = {
-        minX, yMin, minZ, maxX, yMin, minZ,
-        maxX, yMin, minZ, maxX, yMin, maxZ,
-        maxX, yMin, maxZ, minX, yMin, maxZ,
-        minX, yMin, maxZ, minX, yMin, minZ,
+        minX,
+        yMin,
+        minZ,
+        maxX,
+        yMin,
+        minZ,
+        maxX,
+        yMin,
+        minZ,
+        maxX,
+        yMin,
+        maxZ,
+        maxX,
+        yMin,
+        maxZ,
+        minX,
+        yMin,
+        maxZ,
+        minX,
+        yMin,
+        maxZ,
+        minX,
+        yMin,
+        minZ,
 
-        minX, yMax, minZ, maxX, yMax, minZ,
-        maxX, yMax, minZ, maxX, yMax, maxZ,
-        maxX, yMax, maxZ, minX, yMax, maxZ,
-        minX, yMax, maxZ, minX, yMax, minZ,
+        minX,
+        yMax,
+        minZ,
+        maxX,
+        yMax,
+        minZ,
+        maxX,
+        yMax,
+        minZ,
+        maxX,
+        yMax,
+        maxZ,
+        maxX,
+        yMax,
+        maxZ,
+        minX,
+        yMax,
+        maxZ,
+        minX,
+        yMax,
+        maxZ,
+        minX,
+        yMax,
+        minZ,
 
-        minX, yMin, minZ, minX, yMax, minZ,
-        maxX, yMin, minZ, maxX, yMax, minZ,
-        maxX, yMin, maxZ, maxX, yMax, maxZ,
-        minX, yMin, maxZ, minX, yMax, maxZ,
+        minX,
+        yMin,
+        minZ,
+        minX,
+        yMax,
+        minZ,
+        maxX,
+        yMin,
+        minZ,
+        maxX,
+        yMax,
+        minZ,
+        maxX,
+        yMin,
+        maxZ,
+        maxX,
+        yMax,
+        maxZ,
+        minX,
+        yMin,
+        maxZ,
+        minX,
+        yMax,
+        maxZ,
     };
 
     GLuint boxVAO, boxVBO;

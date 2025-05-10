@@ -45,8 +45,10 @@ float Terrain::getHeightAt(float worldX, float worldZ)
 {
     TerrainType terrainType = getTerrainTypeAt(worldX, worldZ);
     assert(noiseFactory && "TerrainNoiseFactory is null!");
-    auto noiseFn = noiseFactory->getNoise(terrainType);
-    return noiseFn ? noiseFn(worldX, worldZ) : 0.0f;
+    auto noiseFn = noiseFactory->getNoise(TerrainType::Mountains); // Use Plains noise for now
+    float height = noiseFn ? noiseFn(worldX, worldZ) : 0.0f;
+   // std::cout << "[Height] (" << worldX << ", " << worldZ << ") => " << height << std::endl;
+    return height;
 }
 //    auto noiseFn = noiseFactory.getNoise(terrainType);
 
@@ -103,39 +105,6 @@ void Terrain::loadChunk(int chunkX, int chunkZ)
     }
 }
 
-// void Terrain::render(Shader &shader, float playerX, float playerZ)
-// {
-//     const float renderDistance = TerrainConstants::TERRAIN_RENDER_DISTANCE;
-
-//     for (auto &pair : chunks)
-//     {
-//         int chunkX = pair.first.first;
-//         int chunkZ = pair.first.second;
-
-//         float worldX = (chunkX + 0.5f) * ChunkConstants::SIZE; // Using 0.5f to set World position in middle of chunk.
-//         float worldZ = (chunkZ + 0.5f) * ChunkConstants::SIZE;
-
-
-//         float dx = worldX - playerX;
-//         float dz = worldZ - playerZ;
-//         float distanceSquared = dx * dx + dz * dz;
-
-//         if (distanceSquared < renderDistance * renderDistance)
-//         {
-//             pair.second->render(shader);
-//         }
-//     }
-// }
-
-
-
-// void Terrain::incrementalInitializeStep(int step, int totalSteps)
-// {
-//     // For now, just do full init once.
-//     // Later, divide this into true staged loading.
-//     if (step == totalSteps)
-//         initialize();
-// }
 
 void Terrain::updateChunks(float playerX, float playerZ)
 {

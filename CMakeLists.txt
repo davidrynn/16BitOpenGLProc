@@ -38,6 +38,7 @@ add_library(game_core STATIC
     src/core/Application.cpp
     src/core/WindowManager.cpp
     src/core/InputManager.cpp
+    src/core/GridRenderer.cpp
     src/core/Camera.cpp
     src/core/Chunk.cpp
     src/core/DefaultChunkFactory.cpp

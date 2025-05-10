@@ -6,6 +6,7 @@
 #include <iostream>
 #include <vector>
 
+#include "Debug.h"
 #include "Shader.h"
 #include "Camera.h"
 
@@ -20,8 +21,7 @@ void Renderer::initialize(std::shared_ptr<Terrain> terrainPtr)
     // Create and store shader
     shader = new Shader("shaders/terrain_vertex.glsl", "shaders/terrain_fragment.glsl");
     shader->use(); // Use the shader once at initialization
-    shader->setVec3("lightDir", glm::normalize(glm::vec3(1.0f, -1.0f, 0.5f))); // Add this!
-
+    shader->setVec3("lightDir", glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)));
     shader->setVec3("baseColor", glm::vec3(0.4f, 0.8f, 0.4f)); // grassy color
     skyGradient = new SkyGradient();
 
@@ -35,6 +35,7 @@ void Renderer::initialize(std::shared_ptr<Terrain> terrainPtr)
     {
         std::cerr << "OpenGL error: " << error << std::endl;
     }
+    gridRenderer = new GridRenderer(200, 1.0f); // Example grid size and spacing
 }
 
 void Renderer::render()
@@ -60,6 +61,19 @@ void Renderer::render()
             chunk->render(*shader);
         }
     }
+
+    
+// ✅ Reset polygon mode BEFORE drawing grid
+if (wireframeEnabled) {
+    glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Reset
+}
+
+// ✅ Draw grid after terrain so it overlays cleanly
+if (wireframeEnabled && gridRenderer) {
+    glDisable(GL_DEPTH_TEST); // Optional: make grid always visible
+    gridRenderer->render(view, projection, glm::vec3(0.3f));
+    glEnable(GL_DEPTH_TEST);
+}
     // Check for OpenGL errors
     GLenum error = glGetError();
     if (error != GL_NO_ERROR)

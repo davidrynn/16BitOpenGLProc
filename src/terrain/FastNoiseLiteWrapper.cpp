@@ -6,10 +6,6 @@ FastNoiseLiteWrapper::FastNoiseLiteWrapper() {
     noise.SetSeed(1337);
 }
 
-float FastNoiseLiteWrapper::getHeight(float x, float z) const {
-    return noise.GetNoise(x, z);
-}
-
 float FastNoiseLiteWrapper::getNoise(float x, float z) const {
     return noise.GetNoise(x, z);
 }

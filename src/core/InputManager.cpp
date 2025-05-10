@@ -20,6 +20,10 @@ bool f4Pressed = false;
 float lastTime = static_cast<float>(glfwGetTime());
 int frameCount = 0;
 
+bool spacePressed = false;
+bool shiftSpacePressed = false;
+
+
 // Define the static camera pointer
 Camera *InputManager::camera = nullptr;
 
@@ -84,10 +88,35 @@ void InputManager::processKeyboard(GLFWwindow *window, Player &player)
         player.moveLeft(cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         player.moveRight(cameraSpeed);
-    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
-        player.moveUp(cameraSpeed);
-    if (glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS)
-        player.moveDown(cameraSpeed);
+// Check if Shift is held
+bool shiftHeld = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
+
+// Handle jump or fly toggle with space
+if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
+    if (shiftHeld && !shiftSpacePressed) {
+        player.toggleFlyMode();
+        shiftSpacePressed = true;
+    } else if (!shiftHeld && !spacePressed) {
+        player.jump();
+        spacePressed = true;
+    }
+}
+
+if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
+    spacePressed = false;
+    shiftSpacePressed = false;
+}
+
+// If in fly mode, allow direct up/down movement
+if (shiftHeld && player.isInFlyMode()) {
+    player.moveDown(cameraSpeed);
+}
+if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && player.isInFlyMode()) {
+    player.moveUp(cameraSpeed);
+}
+
+
+
 }
 
 void InputManager::handleDebugKeys(GLFWwindow *window)

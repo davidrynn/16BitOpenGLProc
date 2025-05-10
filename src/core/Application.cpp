@@ -63,7 +63,8 @@ void Application::run()
         
         renderer.initialize(terrain);
 
-        
+    float terrainY = terrain->getHeightAt(player.camera->position.x, player.camera->position.z);
+    player.camera->position.y = terrainY + 20.0f;
     float lastFrameTime = static_cast<float>(glfwGetTime());
     while (!glfwWindowShouldClose(window))
     {
@@ -82,7 +83,8 @@ void Application::run()
 
 void Application::updateGame(float deltaTime)
 {
-    player.update();
+    float terrainY = terrain->getHeightAt(player.camera->position.x, player.camera->position.z);
+    player.update(deltaTime, terrainY);
     terrain->updateChunksAroundPlayer(player.camera->position.x, player.camera->position.z);
 
     // // Get player position
