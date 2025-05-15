@@ -2,7 +2,7 @@
 #include <GL/glew.h>
 #include <iostream>
 
-Player::Player(Camera* camera)
+Player::Player(Camera *camera)
     : camera(camera)
 {
 }
@@ -42,10 +42,10 @@ void Player::update(float deltaTime, float terrainHeightAtPlayerXZ)
     if (!flyMode)
     {
         // Apply gravity
-        velocityY += gravity * deltaTime;
+        velocity.y += gravity * deltaTime;
 
-        // Move player vertically
-        camera->position.y += velocityY * deltaTime;
+        // Move player
+        camera->position += velocity * deltaTime;
 
         // Terrain collision
         float groundLevel = terrainHeightAtPlayerXZ + playerHeight;
@@ -53,7 +53,7 @@ void Player::update(float deltaTime, float terrainHeightAtPlayerXZ)
         if (camera->position.y < groundLevel)
         {
             camera->position.y = groundLevel;
-            velocityY = 0.0f;
+            velocity.y = 0.0f;
             isGrounded = true;
         }
         else
@@ -65,12 +65,20 @@ void Player::update(float deltaTime, float terrainHeightAtPlayerXZ)
     {
         isGrounded = true; // Allow jumping in air during fly mode
     }
+
+    velocity *= 0.99f;
+    float maxSpeed = 50.0f;
+    if (glm::length(velocity) > maxSpeed)
+    {
+        velocity = glm::normalize(velocity) * maxSpeed;
+    }
 }
 
 void Player::jump()
 {
-    if (isGrounded || flyMode) {
-        velocityY = jumpVelocity;
+    if (isGrounded || flyMode)
+    {
+        velocity.y = jumpVelocity;
         isGrounded = false;
     }
 }
@@ -78,8 +86,27 @@ void Player::jump()
 void Player::toggleFlyMode()
 {
     flyMode = !flyMode;
-    if (flyMode) {
-        velocityY = 0.0f;  // stop gravity
+    if (flyMode)
+    {
+        velocity.y = 0.0f; // stop gravity
     }
     std::cout << "Fly mode: " << (flyMode ? "ON" : "OFF") << std::endl;
+}
+
+void Player::applyForce(const glm::vec3 &force)
+{
+
+    // Clamp velocity to max speed
+    glm::vec3 newVelocity = velocity + force;
+
+    const float maxSpeed = 60.0f;
+    float newSpeed = glm::length(newVelocity);
+    if (newSpeed > maxSpeed)
+    {
+        velocity = glm::normalize(newVelocity) * maxSpeed;
+    }
+    else
+    {
+        velocity = newVelocity;
+    }
 }

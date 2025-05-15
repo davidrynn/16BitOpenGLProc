@@ -13,7 +13,6 @@
 class Terrain : public std::enable_shared_from_this<Terrain>
 {
 public:
-    static std::vector<unsigned int> generateIndices(int gridSize);
     static TerrainType getTerrainTypeAt(float worldX, float worldZ);
 
     float getHeightAt(float worldX, float worldZ);
@@ -24,7 +23,6 @@ public:
 
     void initialize(std::shared_ptr<TerrainNoiseFactory> sharedNoiseFactory, std::function<void(float)> progressCallback);
     void updateChunksAroundPlayer(float playerX, float playerZ);
-    // void render(Shader &shader, float playerX, float playerZ);
     bool Terrain::hasChunksOnAllSides(int chunkX, int chunkZ) const;
     std::shared_ptr<IChunkFactory> chunkFactory;
 

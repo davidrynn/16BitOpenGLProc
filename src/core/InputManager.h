@@ -14,6 +14,16 @@ public:
     static void processKeyboard(GLFWwindow *window, Player &player);
     static void setCamera(Camera *cam);
     static void handleDebugKeys(GLFWwindow* window);
+       // These flags can be read/reset from Application
+    static bool punchTriggered;
+    static bool inventoryToggleTriggered;
+    static bool isMouseButtonPressed(int button);
+    static glm::vec2 getMousePosition();
+
+    static void resetActionTriggers(); // Clear after use
+
+    static void freezeCamera();
+    static void unfreezeCamera();
 
 private:
     static Camera *camera; // Static pointer to the camera object

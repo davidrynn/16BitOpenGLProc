@@ -28,7 +28,7 @@ include_directories(
     src/core
     src/entities
     src/terrain
-)
+    )
 
 # ---------------------------------------
 # Core Library (logic, systems, terrain)
@@ -36,6 +36,7 @@ include_directories(
 
 add_library(game_core STATIC
     src/core/Application.cpp
+    src/core/ArmRenderer.cpp
     src/core/WindowManager.cpp
     src/core/InputManager.cpp
     src/core/GridRenderer.cpp
@@ -44,11 +45,12 @@ add_library(game_core STATIC
     src/core/DefaultChunkFactory.cpp
     src/core/LoadingBar.cpp
     src/core/Shader.cpp
+    src/core/SlingshotController.cpp
     src/core/Renderer.cpp
     src/core/SkyGradient.cpp
     src/entities/Player.cpp
     src/entities/Entity.cpp
-    src/terrain/Biome.cpp
+    src/terrain/Biome.cpp 
     src/terrain/BiomeManager.cpp
     src/terrain/MountainsNoise.cpp
     src/terrain/PlainsNoise.cpp

@@ -10,6 +10,7 @@ bool firstMouse = true;
 float lastX = 400.0f, lastY = 300.0f;
 float yaw = -90.0f; // Initialize yaw to -90.0 degrees to look forward
 float pitch = 0.0f; // Initialize pitch to 0.0 degrees
+static bool cameraFrozen = false;
 
 // Debug variables
 bool wireframeEnabled = false;
@@ -20,9 +21,12 @@ bool f4Pressed = false;
 float lastTime = static_cast<float>(glfwGetTime());
 int frameCount = 0;
 
+// keyboard state variables
 bool spacePressed = false;
 bool shiftSpacePressed = false;
-
+bool punchPressed = false;
+bool InputManager::punchTriggered = false;
+bool InputManager::inventoryToggleTriggered = false;
 
 // Define the static camera pointer
 Camera *InputManager::camera = nullptr;
@@ -41,6 +45,8 @@ void InputManager::keyCallback(GLFWwindow *window, int key, int scancode, int ac
 void InputManager::mouseCallback(GLFWwindow *window, double xpos, double ypos)
 {
 
+    if (cameraFrozen)
+        return;
     float xposF = static_cast<float>(xpos);
     float yposF = static_cast<float>(ypos);
     if (firstMouse)
@@ -88,35 +94,57 @@ void InputManager::processKeyboard(GLFWwindow *window, Player &player)
         player.moveLeft(cameraSpeed);
     if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
         player.moveRight(cameraSpeed);
-// Check if Shift is held
-bool shiftHeld = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
 
-// Handle jump or fly toggle with space
-if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS) {
-    if (shiftHeld && !shiftSpacePressed) {
-        player.toggleFlyMode();
-        shiftSpacePressed = true;
-    } else if (!shiftHeld && !spacePressed) {
-        player.jump();
-        spacePressed = true;
+    // Jump and Fly
+    bool shiftHeld = glfwGetKey(window, GLFW_KEY_LEFT_SHIFT) == GLFW_PRESS;
+
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS)
+    {
+        if (shiftHeld && !shiftSpacePressed)
+        {
+            player.toggleFlyMode();
+            shiftSpacePressed = true;
+        }
+        else if (!shiftHeld && !spacePressed)
+        {
+            player.jump();
+            spacePressed = true;
+        }
     }
-}
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE)
+    {
+        spacePressed = false;
+        shiftSpacePressed = false;
+    }
 
-if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_RELEASE) {
-    spacePressed = false;
-    shiftSpacePressed = false;
-}
+    if (shiftHeld && player.isInFlyMode())
+        player.moveDown(cameraSpeed);
+    if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && player.isInFlyMode())
+        player.moveUp(cameraSpeed);
 
-// If in fly mode, allow direct up/down movement
-if (shiftHeld && player.isInFlyMode()) {
-    player.moveDown(cameraSpeed);
-}
-if (glfwGetKey(window, GLFW_KEY_SPACE) == GLFW_PRESS && player.isInFlyMode()) {
-    player.moveUp(cameraSpeed);
-}
+    // --- Punch action (P key) ---
+    static bool punchKeyDown = false;
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_PRESS && !punchKeyDown)
+    {
+        punchTriggered = true;
+        punchKeyDown = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_P) == GLFW_RELEASE)
+    {
+        punchKeyDown = false;
+    }
 
-
-
+    // --- Inventory toggle (I key) ---
+    static bool inventoryKeyDown = false;
+    if (glfwGetKey(window, GLFW_KEY_I) == GLFW_PRESS && !inventoryKeyDown)
+    {
+        inventoryToggleTriggered = true;
+        inventoryKeyDown = true;
+    }
+    if (glfwGetKey(window, GLFW_KEY_I) == GLFW_RELEASE)
+    {
+        inventoryKeyDown = false;
+    }
 }
 
 void InputManager::handleDebugKeys(GLFWwindow *window)
@@ -193,5 +221,53 @@ void InputManager::handleToggleCursorKey(GLFWwindow *window)
     if (glfwGetKey(window, GLFW_KEY_F4) == GLFW_RELEASE)
     {
         f4Pressed = false; // Reset when the key is released
+    }
+}
+
+void InputManager::resetActionTriggers()
+{
+    punchTriggered = false;
+    inventoryToggleTriggered = false;
+}
+
+bool InputManager::isMouseButtonPressed(int button)
+{
+    GLFWwindow *window = WindowManager::getWindow();
+    return glfwGetMouseButton(window, button) == GLFW_PRESS;
+}
+
+glm::vec2 InputManager::getMousePosition()
+{
+    GLFWwindow *window = WindowManager::getWindow();
+    double xpos, ypos;
+    glfwGetCursorPos(window, &xpos, &ypos);
+    return glm::vec2(static_cast<float>(xpos), static_cast<float>(ypos));
+}
+
+void InputManager::freezeCamera()
+{
+    cameraFrozen = true;
+}
+
+void InputManager::unfreezeCamera()
+{
+    cameraFrozen = false;
+
+    if (camera)
+    {
+        glm::vec3 dir = camera->front;
+        yaw = glm::degrees(atan2(dir.z, dir.x));
+        pitch = glm::degrees(asin(dir.y));
+
+        // Reset last mouse position to current to prevent jump
+        GLFWwindow *window = WindowManager::getWindow();
+        if (window)
+        {
+            double xpos, ypos;
+            glfwGetCursorPos(window, &xpos, &ypos);
+            lastX = static_cast<float>(xpos);
+            lastY = static_cast<float>(ypos);
+            firstMouse = true;
+        }
     }
 }

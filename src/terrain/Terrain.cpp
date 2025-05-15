@@ -9,32 +9,6 @@
 
 static inline BiomeManager biomeManager;
 
-std::vector<unsigned int> Terrain::generateIndices(int gridSize)
-{
-    std::vector<unsigned int> indices;
-
-    for (int z = 0; z < gridSize - 1; z++)
-    {
-        for (int x = 0; x < gridSize - 1; x++)
-        {
-            int topLeft = z * gridSize + x;
-            int topRight = topLeft + 1;
-            int bottomLeft = (z + 1) * gridSize + x;
-            int bottomRight = bottomLeft + 1;
-
-            // Two triangles per grid square
-            indices.push_back(topLeft);
-            indices.push_back(bottomLeft);
-            indices.push_back(topRight);
-
-            indices.push_back(topRight);
-            indices.push_back(bottomLeft);
-            indices.push_back(bottomRight);
-        }
-    }
-    return indices;
-}
-
 TerrainType Terrain::getTerrainTypeAt(float worldX, float worldZ)
 {
     Biome biome = biomeManager.getBiomeForPosition(worldX, worldZ);
@@ -50,8 +24,6 @@ float Terrain::getHeightAt(float worldX, float worldZ)
    // std::cout << "[Height] (" << worldX << ", " << worldZ << ") => " << height << std::endl;
     return height;
 }
-//    auto noiseFn = noiseFactory.getNoise(terrainType);
-
 
 void Terrain::setChunkFactory(std::shared_ptr<IChunkFactory> factory) {
     chunkFactory = std::move(factory);

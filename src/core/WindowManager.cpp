@@ -6,6 +6,7 @@
 
 glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);  // Forward vector
 bool WindowManager::cursorLocked = true;
+GLFWwindow* WindowManager::window = nullptr;
 
 GLFWwindow* WindowManager::createWindow(int width, int height, const char* title) {
     if (!glfwInit()) {
@@ -18,7 +19,7 @@ GLFWwindow* WindowManager::createWindow(int width, int height, const char* title
     glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
     glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
 
-    GLFWwindow* window = glfwCreateWindow(width, height, title, nullptr, nullptr);
+    window = glfwCreateWindow(width, height, title, nullptr, nullptr);
     if (!window) {
         std::cerr << "Failed to create GLFW window" << std::endl;
         glfwTerminate();
@@ -28,6 +29,10 @@ GLFWwindow* WindowManager::createWindow(int width, int height, const char* title
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
 
     return window;
+}
+
+GLFWwindow* WindowManager::getWindow() {
+    return window; // assuming 'window' is a static or global variable in WindowManager
 }
 
 void WindowManager::processInput(GLFWwindow* window, glm::vec3& cameraPos, glm::vec3& cameraFront) {

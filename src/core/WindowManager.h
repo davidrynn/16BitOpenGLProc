@@ -17,8 +17,10 @@ public:
     static void processInput(GLFWwindow *window, glm::vec3 &cameraPos, glm::vec3 &cameraFront);
     static void mouseCallback(GLFWwindow *window, float xpos, float ypos);
     static void toggleCursor(GLFWwindow *window);
+    static GLFWwindow* getWindow();
 
 private:
     static bool cursorLocked;
+    static GLFWwindow* window;
 };
 #endif

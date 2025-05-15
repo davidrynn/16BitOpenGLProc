@@ -16,7 +16,7 @@ namespace TerrainConstants {
     constexpr int BIOME_WORLD_HEIGHT = 1000;
 
     // Rendering distance
-    constexpr float TERRAIN_RENDER_DISTANCE = 50.0f;
+    constexpr float TERRAIN_RENDER_DISTANCE = 70.0f;
 
     // View distance?
     constexpr int VIEW_DISTANCE = 10;

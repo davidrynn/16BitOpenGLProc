@@ -10,7 +10,8 @@ Application::Application()
     : terrain(std::make_shared<Terrain>()),
     camera(glm::vec3(0.0f, 0.5f, 3.0f)), 
     player(&camera), 
-    renderer(camera)
+    renderer(camera),
+    slingshotController()
 {
     window = WindowManager::createWindow(1280, 720, "16BitCraft");
     if (!window)
@@ -49,7 +50,7 @@ void Application::run()
     terrain = std::make_shared<Terrain>();
         // Show loading bar while terrain initializes incrementally
         {
-            LoadingBar loadingBar("shaders/ui/loading.vert.glsl", "shaders/ui/loading.frag.glsl");
+            LoadingBar loadingBar("shaders/ui/loading.vert", "shaders/ui/loading.frag");
             loadingBar.initialize();
             auto noiseFactory = std::make_shared<TerrainNoiseFactory>();
             terrain->initialize(noiseFactory, [&](float progress) {
@@ -86,7 +87,20 @@ void Application::updateGame(float deltaTime)
     float terrainY = terrain->getHeightAt(player.camera->position.x, player.camera->position.z);
     player.update(deltaTime, terrainY);
     terrain->updateChunksAroundPlayer(player.camera->position.x, player.camera->position.z);
+    slingshotController.update(window, camera, player);
+    // Trigger punch
+    if (InputManager::punchTriggered) {
+        renderer.triggerArmPunch();
+    }
 
+    // Inventory
+    if (InputManager::inventoryToggleTriggered) {
+        // toggleInventory(); or menuManager->toggleInventory();
+        std::cout << "Inventory toggled!" << std::endl;
+    }
+
+    // Reset flags so they don't repeat next frame
+    InputManager::resetActionTriggers();
     // // Get player position
     // float x = player.camera->position.x;
     // float z = player.camera->position.z;

@@ -30,10 +30,7 @@ void Chunk::generate()
     vertices.clear();
     indices.clear();
     normals.clear();
-            // Initialize normals to zero (to accumulate them later)
-            normals.push_back(0.0f);
-            normals.push_back(0.0f);
-            normals.push_back(0.0f);
+
     // 1. Generate vertices: (SIZE + 1) x (SIZE + 1) grid
     for (int z = 0; z <= SIZE; ++z)
     {
@@ -111,8 +108,19 @@ void Chunk::generate()
 
 void Chunk::uploadToGPU()
 {
+    
     if (!renderingEnabled)
         return;
+//     std::cout << "[Chunk] First vertex: "
+//           << vertices[0] << ", "
+//           << vertices[1] << ", "
+//           << vertices[2] << std::endl;
+
+// std::cout << "[Chunk] First normal: "
+//           << normals[0] << ", "
+//           << normals[1] << ", "
+//           << normals[2] << std::endl;
+    
     std::vector<float> vertexData;
     for (size_t i = 0; i < vertices.size() / 3; ++i)
     {
@@ -123,7 +131,10 @@ void Chunk::uploadToGPU()
         vertexData.push_back(normals[i * 3 + 1]);  // ny
         vertexData.push_back(normals[i * 3 + 2]);  // nz
     }
-
+if (vertices.size() != normals.size()) {
+    std::cerr << "[Error] Vertex/normal count mismatch: "
+              << vertices.size() << " vs " << normals.size() << "\n";
+}
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
     glGenBuffers(1, &EBO);

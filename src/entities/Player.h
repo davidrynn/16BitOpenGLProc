@@ -22,9 +22,10 @@ public:
 
     bool isGrounded = false;
     bool isInFlyMode() const { return flyMode; }
+    void applyForce(const glm::vec3& force);
 
 private:
-    float velocityY = 0.0f;
+    glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f);
     bool flyMode = false;
     const float gravity = -20.0f;      // Tuned for game feel
     const float jumpVelocity = 10.0f;
