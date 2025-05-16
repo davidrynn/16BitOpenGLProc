@@ -1,7 +1,7 @@
 #pragma once
 #include <memory>
 #include <vector>
-#include <GL/glew.h> // Will want to remove this for testing.
+#include <glad/glad.h>
 #include <glm/glm.hpp>
 
 class Shader;

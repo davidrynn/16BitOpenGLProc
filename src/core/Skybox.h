@@ -1,7 +1,7 @@
 #ifndef SKYBOX_H
 #define SKYBOX_H
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include "Shader.h"
 
 class Skybox {

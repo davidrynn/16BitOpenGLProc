@@ -1,5 +1,5 @@
 #include "Player.h"
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include <iostream>
 
 Player::Player(Camera *camera)

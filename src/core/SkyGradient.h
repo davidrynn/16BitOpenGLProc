@@ -1,7 +1,7 @@
 #ifndef SKYGRADIENT_H
 #define SKYGRADIENT_H
 
-#include <GL/glew.h>
+#include <glad/glad.h>
 #include "Shader.h"
 
 class SkyGradient {

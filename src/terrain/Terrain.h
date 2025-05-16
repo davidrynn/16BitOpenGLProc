@@ -23,7 +23,7 @@ public:
 
     void initialize(std::shared_ptr<TerrainNoiseFactory> sharedNoiseFactory, std::function<void(float)> progressCallback);
     void updateChunksAroundPlayer(float playerX, float playerZ);
-    bool Terrain::hasChunksOnAllSides(int chunkX, int chunkZ) const;
+    bool hasChunksOnAllSides(int chunkX, int chunkZ) const;
     std::shared_ptr<IChunkFactory> chunkFactory;
 
     

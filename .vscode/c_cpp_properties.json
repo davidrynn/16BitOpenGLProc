@@ -10,7 +10,7 @@
         "${workspaceFolder}/build/_deps/googletest-src/googletest/include",
         "C:/Users/david/vcpkg/installed/x64-windows/include"
       ],
-      "defines": ["GLEW_STATIC"],
+      "defines": [],
       "compilerPath": "C:/Program Files/Microsoft Visual Studio/2022/Community/VC/Tools/MSVC/14.*/bin/Hostx64/x64/cl.exe",
       "cStandard": "c11",
       "cppStandard": "c++17",

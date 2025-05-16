@@ -2,8 +2,8 @@
 #define SHADER_H
 
 #include <string>        // ✅ Standard library first
-#include <GL/glew.h>     // ✅ GLEW immediately after standard headers
-#include <glm/glm.hpp>   // ✅ Other external libraries after GLEW
+#include <glad/glad.h>     // ✅ glad immediately after standard headers
+#include <glm/glm.hpp>   // ✅ Other external libraries after glad
 
 class Shader {
 public:

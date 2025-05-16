@@ -2,16 +2,17 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "InputManager.h"
 #include "ChunkConstants.h"
 
 Application::Application()
     : terrain(std::make_shared<Terrain>()),
-    camera(glm::vec3(0.0f, 0.5f, 3.0f)), 
-    player(&camera), 
-    renderer(camera),
-    slingshotController()
+      camera(glm::vec3(0.0f, 0.5f, 3.0f)),
+      player(&camera),
+      renderer(camera),
+      slingshotController()
 {
     window = WindowManager::createWindow(1280, 720, "16BitCraft");
     if (!window)
@@ -20,10 +21,10 @@ Application::Application()
         glfwTerminate();
     }
 
-    // Initialize GLEW
-    if (glewInit() != GLEW_OK)
+    // Initialize glad loader
+    if (!gladLoadGLLoader((GLADloadproc)glfwGetProcAddress))
     {
-        std::cerr << "Failed to initialize GLEW" << std::endl;
+        std::cerr << "Failed to initialize GLAD" << std::endl;
         glfwTerminate();
     }
 
@@ -37,7 +38,6 @@ Application::Application()
 
     // Set the camera in the InputManager
     InputManager::setCamera(&camera);
-
 }
 
 Application::~Application()
@@ -48,21 +48,21 @@ Application::~Application()
 void Application::run()
 {
     terrain = std::make_shared<Terrain>();
-        // Show loading bar while terrain initializes incrementally
-        {
-            LoadingBar loadingBar("shaders/ui/loading.vert", "shaders/ui/loading.frag");
-            loadingBar.initialize();
-            auto noiseFactory = std::make_shared<TerrainNoiseFactory>();
-            terrain->initialize(noiseFactory, [&](float progress) {
+    // Show loading bar while terrain initializes incrementally
+    {
+        LoadingBar loadingBar("shaders/ui/loading.vert", "shaders/ui/loading.frag");
+        loadingBar.initialize();
+        auto noiseFactory = std::make_shared<TerrainNoiseFactory>();
+        terrain->initialize(noiseFactory, [&](float progress)
+                            {
                 glDisable(GL_DEPTH_TEST);
                 loadingBar.render(progress, window);
                 glEnable(GL_DEPTH_TEST);
                 glfwSwapBuffers(window);
-                glfwPollEvents();
-            });
-        }
-        
-        renderer.initialize(terrain);
+                glfwPollEvents(); });
+    }
+
+    renderer.initialize(terrain);
 
     float terrainY = terrain->getHeightAt(player.camera->position.x, player.camera->position.z);
     player.camera->position.y = terrainY + 20.0f;
@@ -75,7 +75,7 @@ void Application::run()
 
         InputManager::processKeyboard(window, player);
         InputManager::handleDebugKeys(window);
-        updateGame(deltaTime); 
+        updateGame(deltaTime);
         renderer.render(); // Render scene
         glfwSwapBuffers(window);
         glfwPollEvents();
@@ -89,12 +89,14 @@ void Application::updateGame(float deltaTime)
     terrain->updateChunksAroundPlayer(player.camera->position.x, player.camera->position.z);
     slingshotController.update(window, camera, player);
     // Trigger punch
-    if (InputManager::punchTriggered) {
+    if (InputManager::punchTriggered)
+    {
         renderer.triggerArmPunch();
     }
 
     // Inventory
-    if (InputManager::inventoryToggleTriggered) {
+    if (InputManager::inventoryToggleTriggered)
+    {
         // toggleInventory(); or menuManager->toggleInventory();
         std::cout << "Inventory toggled!" << std::endl;
     }

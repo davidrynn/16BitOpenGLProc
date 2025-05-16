@@ -1,119 +1,109 @@
 cmake_minimum_required(VERSION 3.10)
+project(16BitOpenGLProc)
+add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
 
-project(16BitCraft_OpenGL)
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 
-# ---------------------------------------
+# Use vcpkg toolchain if available
+if(DEFINED ENV{VCPKG_ROOT} AND NOT DEFINED CMAKE_TOOLCHAIN_FILE)
+    set(CMAKE_TOOLCHAIN_FILE "$ENV{VCPKG_ROOT}/scripts/buildsystems/vcpkg.cmake" CACHE STRING "Vcpkg toolchain file")
+endif()
+
+# Set output directories
+#set(CMAKE_RUNTIME_OUTPUT_DIRECTORY_DEBUG ${CMAKE_BINARY_DIR})
+
 # Dependencies
-# ---------------------------------------
-
 find_package(OpenGL REQUIRED)
-find_package(GLEW REQUIRED)
-find_package(glfw3 REQUIRED)
+find_package(glfw3 CONFIG REQUIRED)
+find_package(glad CONFIG REQUIRED)
+find_package(glm CONFIG REQUIRED)
 
-# ---------------------------------------
-# Global Compiler Flags
-# ---------------------------------------
+# Core source files
+set(CORE_SRC
+    src/core/Application.cpp
+    src/core/ArmRenderer.cpp
+    src/core/Camera.cpp
+    src/core/Chunk.cpp
+    src/core/DefaultChunkFactory.cpp
+    src/core/GridRenderer.cpp
+    src/core/InputManager.cpp
+    src/core/LoadingBar.cpp
+    src/core/Renderer.cpp
+    src/core/Shader.cpp
+    src/core/SkyGradient.cpp
+    src/core/Skybox.cpp
+    src/core/SlingshotController.cpp
+    src/core/WindowManager.cpp
+)
 
-add_definitions(-DGL_SILENCE_DEPRECATION)
-add_compile_definitions(GLM_ENABLE_EXPERIMENTAL)
+# Entity source files
+set(ENTITY_SRC
+    src/entities/Entity.cpp
+    src/entities/Player.cpp
+)
 
-# ---------------------------------------
-# Include Directories
-# ---------------------------------------
+# Terrain source files
+set(TERRAIN_SRC
+    src/terrain/Biome.cpp
+    src/terrain/BiomeManager.cpp
+    src/terrain/DesertNoise.cpp
+    src/terrain/FastNoiseLiteWrapper.cpp
+    src/terrain/GrassRenderer.cpp
+    src/terrain/MountainsNoise.cpp
+    src/terrain/PlainsNoise.cpp
+    src/terrain/SnowNoise.cpp
+    src/terrain/Terrain.cpp
+    src/terrain/TerrainNoiseFactory.cpp
+)
 
+# Include directories
 include_directories(
     src
     src/core
     src/entities
     src/terrain
-    )
+    ${GLFW3_INCLUDE_DIRS}
+    ${GLAD_INCLUDE_DIRS}
+    ${GLM_INCLUDE_DIRS}
+)
 
-# ---------------------------------------
-# Core Library (logic, systems, terrain)
-# ---------------------------------------
-
+# Game Core library
 add_library(game_core STATIC
-    src/core/Application.cpp
-    src/core/ArmRenderer.cpp
-    src/core/WindowManager.cpp
-    src/core/InputManager.cpp
-    src/core/GridRenderer.cpp
-    src/core/Camera.cpp
-    src/core/Chunk.cpp
-    src/core/DefaultChunkFactory.cpp
-    src/core/LoadingBar.cpp
-    src/core/Shader.cpp
-    src/core/SlingshotController.cpp
-    src/core/Renderer.cpp
-    src/core/SkyGradient.cpp
-    src/entities/Player.cpp
-    src/entities/Entity.cpp
-    src/terrain/Biome.cpp 
-    src/terrain/BiomeManager.cpp
-    src/terrain/MountainsNoise.cpp
-    src/terrain/PlainsNoise.cpp
-    src/terrain/DesertNoise.cpp
-    src/terrain/SnowNoise.cpp
-    src/terrain/Terrain.cpp
-    src/terrain/TerrainNoiseFactory.cpp
-    src/terrain/FastNoiseLiteWrapper.cpp
+    ${CORE_SRC}
+    ${ENTITY_SRC}
+    ${TERRAIN_SRC}
 )
+target_link_libraries(game_core PUBLIC OpenGL::GL glfw glad::glad glm::glm)
 
-target_link_libraries(game_core
-    GLEW::GLEW
-    OpenGL::GL
-    glfw
-)
+# Main executable
+add_executable(16BitCraft src/main.cpp)
+target_link_libraries(16BitCraft PRIVATE game_core)
 
-# ---------------------------------------
-# Main Game Executable
-# ---------------------------------------
-
-add_executable(16BitCraft
-    src/main.cpp
-)
-
-target_link_libraries(16BitCraft game_core)
-
-# Copy shaders to build directory
 file(COPY ${CMAKE_SOURCE_DIR}/shaders DESTINATION ${CMAKE_BINARY_DIR})
 
-# ---------------------------------------
-# GoogleTest Setup
-# ---------------------------------------
-
-include(FetchContent)
-set(gtest_force_shared_crt ON CACHE BOOL "" FORCE)
-set(gtest_build_tests OFF CACHE BOOL "Disable gtest's own tests" FORCE)
-
-FetchContent_Declare(
-  googletest
-  URL https://github.com/google/googletest/archive/03597a01ee50ed33e9dfd640b249b4be3799d395.zip
-)
-FetchContent_MakeAvailable(googletest)
-
+# Unit Tests
 enable_testing()
 
-# ---------------------------------------
-# Unit Tests
-# ---------------------------------------
+find_package(GTest CONFIG REQUIRED)
+include(GoogleTest)
 
 add_executable(tests
     tests/test_main.cpp
     tests/terrain/TerrainTest.cpp
 )
-
 target_link_libraries(tests
-    gtest_main
-    game_core
+    PRIVATE game_core
+    PRIVATE glad::glad
+    PRIVATE GTest::gtest
+    PRIVATE GTest::gtest_main
 )
-
-include(GoogleTest)
-gtest_discover_tests(tests)
 
 target_include_directories(tests PRIVATE
-    tests
-    tests/terrain
+    src
+    src/core
+    src/entities
+    src/terrain
 )
+
+gtest_discover_tests(tests)

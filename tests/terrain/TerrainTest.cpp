@@ -15,7 +15,7 @@ protected:
 };
  
 TEST_F(TerrainTest, TestInitialize) {
-    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>();
+    terrain = std::make_shared<Terrain>();
     terrain->setChunkFactory(std::make_shared<MockChunkFactory>());
 
     float lastProgress = 0.0f;
@@ -29,7 +29,7 @@ TEST_F(TerrainTest, TestInitialize) {
 }
 
 TEST_F(TerrainTest, TestSurvivesConstruction) {
-    std::shared_ptr<Terrain> terrain = std::make_shared<Terrain>();
+    terrain = std::make_shared<Terrain>();
     SUCCEED(); // No crash means pass
 }
 
