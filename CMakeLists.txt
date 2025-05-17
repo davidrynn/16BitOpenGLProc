@@ -50,6 +50,7 @@ set(TERRAIN_SRC
     src/terrain/DesertNoise.cpp
     src/terrain/FastNoiseLiteWrapper.cpp
     src/terrain/GrassRenderer.cpp
+    src/terrain/GrassSpawner.cpp
     src/terrain/MountainsNoise.cpp
     src/terrain/PlainsNoise.cpp
     src/terrain/SnowNoise.cpp

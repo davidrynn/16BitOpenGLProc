@@ -2,10 +2,13 @@
 #include <thread>
 #include <chrono>
 #include <iostream>
+#include <memory>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include "InputManager.h"
 #include "ChunkConstants.h"
+#include "GrassSpawner.h"
+#include "GrassRenderer.h"
 
 Application::Application()
     : terrain(std::make_shared<Terrain>()),
@@ -64,6 +67,13 @@ void Application::run()
 
     renderer.initialize(terrain);
 
+    grassSpawner = std::make_unique<GrassSpawner>(terrain, 2);
+    grassSpawner->generate();
+
+    grassRenderer = std::make_unique<GrassRenderer>();
+    grassRenderer->initialize();
+    grassRenderer->update(grassSpawner->getGrassPositions());
+
     float terrainY = terrain->getHeightAt(player.camera->position.x, player.camera->position.z);
     player.camera->position.y = terrainY + 20.0f;
     float lastFrameTime = static_cast<float>(glfwGetTime());
@@ -76,7 +86,10 @@ void Application::run()
         InputManager::processKeyboard(window, player);
         InputManager::handleDebugKeys(window);
         updateGame(deltaTime);
-        renderer.render(); // Render scene
+        renderer.render();                                                                             // Render scene
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f), 1280.0f / 720.0f, 0.1f, 1000.0f); // Move to camera
+        grassRenderer->render(camera.getViewMatrix(), projection, currentFrameTime);
+
         glfwSwapBuffers(window);
         glfwPollEvents();
     }
