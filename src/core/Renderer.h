@@ -7,6 +7,8 @@
 
 #include "ArmRenderer.h"
 #include "Camera.h"
+#include "GrassRenderer.h"
+#include "GrassSpawner.h"
 #include "GridRenderer.h"
 #include "Shader.h"
 #include "SkyGradient.h"
@@ -27,6 +29,8 @@ private:
 
     std::unique_ptr<GridRenderer> gridRenderer;
     std::unique_ptr<ArmRenderer> armRenderer;
+    std::unique_ptr<GrassSpawner> grassSpawner;
+    std::unique_ptr<GrassRenderer> grassRenderer;   
     std::unique_ptr<Shader> shader;
     std::unique_ptr<SkyGradient> skyGradient;
 

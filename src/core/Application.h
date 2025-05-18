@@ -11,9 +11,6 @@
 #include "Player.h"
 #include "SlingshotController.h"
 
-class GrassSpawner;     
-class GrassRenderer;
-
 class Application {
 public:
     Application();
@@ -25,10 +22,6 @@ private:
     GLFWwindow* window;
     Camera camera;
     Renderer renderer;
-
-    std::unique_ptr<GrassSpawner> grassSpawner;
-    std::unique_ptr<GrassRenderer> grassRenderer;
-
     ArmRenderer armRenderer;
     Player player;
     std::shared_ptr<Terrain> terrain;

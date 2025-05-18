@@ -75,13 +75,13 @@ void Shader::setVec3(const std::string &name, const glm::vec3 &value) const {
 }
 
 void Shader::setFloat(const std::string &name, float value) const {
-    glUniform1f(glGetUniformLocation(ID, name.c_str()), value);
     GLint loc = glGetUniformLocation(ID, name.c_str());
     if (loc == -1) {
-        std::cerr << "Uniform '" << name << "' not found in shader.\n";
+        std::cerr << "!! Uniform '" << name << "' not found in shader.\n";
+        return;
     }
+    glUniform1f(loc, value);
 }
-
 
 void Shader::checkCompileErrors(GLuint shader, std::string type)
 {

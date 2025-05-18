@@ -36,6 +36,13 @@ void Renderer::initialize(std::shared_ptr<Terrain> terrainPtr)
     {
         std::cerr << "OpenGL error: " << error << std::endl;
     }
+    
+    grassSpawner = std::make_unique<GrassSpawner>(terrain, 2);
+    grassSpawner->generate();
+
+    grassRenderer = std::make_unique<GrassRenderer>();
+    grassRenderer->initialize();
+    grassRenderer->update(grassSpawner->getGrassPositions());
     gridRenderer = std::make_unique<GridRenderer>(200, 1.0f);
     armRenderer = std::make_unique<ArmRenderer>();
     armRenderer->initialize();
@@ -66,6 +73,14 @@ void Renderer::render()
         {
             chunk->render(*shader);
         }
+    }
+
+    if (grassRenderer) {
+        float time = static_cast<float>(glfwGetTime());
+        glm::mat4 view = camera.getViewMatrix();
+        glm::mat4 projection = glm::perspective(glm::radians(45.0f),
+                                                (float)width / height, 0.1f, 1000.0f);
+        grassRenderer->render(view, projection, time);
     }
 
     // Render arm

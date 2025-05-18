@@ -17,12 +17,12 @@ void GrassRenderer::initialize() {
 }
 
 void GrassRenderer::setupBlade() {
-    float triangle[] = {
-        // x, y, z
-         0.0f, 0.0f, 0.0f,
-         0.05f, 0.2f, 0.0f,
-        -0.05f, 0.2f, 0.0f
-    };
+float triangle[] = {
+   -0.05f, 0.0f, 0.0f,      // bottom left
+    0.05f, 0.0f, 0.0f,      // bottom right
+    0.0f,  0.3f, 0.0f       // top point (Y up)
+};
+
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);
@@ -30,20 +30,21 @@ void GrassRenderer::setupBlade() {
 
     glBindVertexArray(VAO);
 
-    // Triangle vertices
+    // Bind triangle vertex buffer
     glBindBuffer(GL_ARRAY_BUFFER, VBO);
     glBufferData(GL_ARRAY_BUFFER, sizeof(triangle), triangle, GL_STATIC_DRAW);
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
 
-    // Instance positions
+    // Bind instance offset buffer
     glBindBuffer(GL_ARRAY_BUFFER, instanceVBO);
-    glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW); // Initially empty
-    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+    glBufferData(GL_ARRAY_BUFFER, 0, nullptr, GL_DYNAMIC_DRAW);
     glEnableVertexAttribArray(1);
-    glVertexAttribDivisor(1, 1); // Advance per instance
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, sizeof(glm::vec3), (void*)0);
+    glVertexAttribDivisor(1, 1);
 
-    glBindVertexArray(0);
+    glBindBuffer(GL_ARRAY_BUFFER, 0);     // 💡 reset buffer binding
+    glBindVertexArray(0);                 // 💡 reset VAO binding
 }
 
 void GrassRenderer::update(const std::vector<glm::vec3>& newPositions) {
@@ -64,7 +65,6 @@ void GrassRenderer::render(const glm::mat4& view, const glm::mat4& projection, f
     shader->setMat4("view", view);
     shader->setMat4("projection", projection);
     shader->setFloat("time", time);
-
     glBindVertexArray(VAO);
     glDrawArraysInstanced(GL_TRIANGLES, 0, 3, static_cast<GLsizei>(grassPositions.size()));
     glBindVertexArray(0);
