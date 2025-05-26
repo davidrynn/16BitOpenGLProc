@@ -36,7 +36,8 @@ void Renderer::initialize(std::shared_ptr<Terrain> terrainPtr)
     {
         std::cerr << "OpenGL error: " << error << std::endl;
     }
-    
+    reticleRenderer = std::make_unique<ReticleRenderer>();
+    reticleRenderer->initialize();
     grassSpawner = std::make_unique<GrassSpawner>(terrain, 2);
     grassSpawner->generate();
 
@@ -85,18 +86,11 @@ void Renderer::render()
 
     // Render arm
     armRenderer->render(camera, projection);
-//     Shader armShader = Shader("shaders/arm.vert", "shaders/arm.frag");
-//     armShader.use();
-//     armShader.setVec3("baseColor", glm::vec3(0.12f, 0.02f, 0.2f));
-//     glm::vec3 forward = glm::normalize(camera.front);
-// glm::vec3 position = camera.position + forward * 2.0f;
-// armShader.setMat4("view", camera.getViewMatrix());
-// armShader.setMat4("projection", projection);
-// glm::mat4 model = glm::translate(glm::mat4(1.0f), position);
-
-// armShader.setMat4("model", model);
-//     drawModel(armModel);
-    // ✅ Reset polygon mode BEFORE drawing grid
+    // Render reticle
+    if (reticleRenderer)
+    {
+        reticleRenderer->render();
+    }
     if (wireframeEnabled)
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Reset

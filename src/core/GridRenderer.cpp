@@ -24,7 +24,7 @@ void GridRenderer::generateGrid(int size, float spacing) {
         vertices.push_back(i * spacing); vertices.push_back(0.0f); vertices.push_back(-size * spacing);
         vertices.push_back(i * spacing); vertices.push_back(0.0f); vertices.push_back(size * spacing);
     }
-    vertexCount = vertices.size() / 3;
+    vertexCount = static_cast<int>(vertices.size()) / 3;
 
     glGenVertexArrays(1, &VAO);
     glGenBuffers(1, &VBO);

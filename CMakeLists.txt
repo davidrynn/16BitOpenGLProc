@@ -30,6 +30,7 @@ set(CORE_SRC
     src/core/InputManager.cpp
     src/core/LoadingBar.cpp
     src/core/Renderer.cpp
+    src/core/ReticleRenderer.cpp
     src/core/Shader.cpp
     src/core/SkyGradient.cpp
     src/core/Skybox.cpp

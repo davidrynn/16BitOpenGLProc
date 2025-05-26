@@ -10,6 +10,7 @@
 #include "GrassRenderer.h"
 #include "GrassSpawner.h"
 #include "GridRenderer.h"
+#include "ReticleRenderer.h"
 #include "Shader.h"
 #include "SkyGradient.h"
 #include "Terrain.h"
@@ -30,7 +31,8 @@ private:
     std::unique_ptr<GridRenderer> gridRenderer;
     std::unique_ptr<ArmRenderer> armRenderer;
     std::unique_ptr<GrassSpawner> grassSpawner;
-    std::unique_ptr<GrassRenderer> grassRenderer;   
+    std::unique_ptr<GrassRenderer> grassRenderer;
+    std::unique_ptr<ReticleRenderer> reticleRenderer;
     std::unique_ptr<Shader> shader;
     std::unique_ptr<SkyGradient> skyGradient;
 

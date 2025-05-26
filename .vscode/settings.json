@@ -94,6 +94,7 @@
         "filesystem": "cpp",
         "valarray": "cpp",
         "numeric": "cpp",
-        "regex": "cpp"
+        "regex": "cpp",
+        "reticulerenderer": "cpp"
     }
 }
