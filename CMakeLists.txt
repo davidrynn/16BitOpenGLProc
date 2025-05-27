@@ -25,10 +25,12 @@ set(CORE_SRC
     src/core/ArmRenderer.cpp
     src/core/Camera.cpp
     src/core/Chunk.cpp
+    src/core/DebugMarker.cpp
     src/core/DefaultChunkFactory.cpp
     src/core/GridRenderer.cpp
     src/core/InputManager.cpp
     src/core/LoadingBar.cpp
+    src/core/Raycaster.cpp
     src/core/Renderer.cpp
     src/core/ReticleRenderer.cpp
     src/core/Shader.cpp

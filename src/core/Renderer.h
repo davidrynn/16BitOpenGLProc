@@ -14,7 +14,7 @@
 #include "Shader.h"
 #include "SkyGradient.h"
 #include "Terrain.h"
-
+#include "DebugMarker.h"
 class Renderer
 {
 public:
@@ -22,12 +22,13 @@ public:
     void initialize(std::shared_ptr<Terrain> terrainPtr);
     void render();
     void triggerArmPunch();
+    std::unique_ptr<DebugMarker> debugMarker;   
+    
 private:
     unsigned int VAO, VBO, EBO;
     std::vector<unsigned int> terrainIndices;
 
     Camera& camera;
-
     std::unique_ptr<GridRenderer> gridRenderer;
     std::unique_ptr<ArmRenderer> armRenderer;
     std::unique_ptr<GrassSpawner> grassSpawner;

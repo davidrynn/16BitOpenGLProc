@@ -224,6 +224,12 @@ void InputManager::handleToggleCursorKey(GLFWwindow *window)
     }
 }
 
+bool InputManager::isKeyPressed(int key)
+{
+    GLFWwindow *window = glfwGetCurrentContext();
+    return glfwGetKey(window, key) == GLFW_PRESS;
+}
+
 void InputManager::resetActionTriggers()
 {
     punchTriggered = false;

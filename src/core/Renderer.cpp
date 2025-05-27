@@ -23,7 +23,7 @@ void Renderer::initialize(std::shared_ptr<Terrain> terrainPtr)
     shader->use(); // Use the shader once at initialization
     shader->setVec3("lightDir", glm::normalize(glm::vec3(0.0f, 1.0f, 0.0f)));
     shader->setVec3("baseColor", glm::vec3(0.4f, 0.8f, 0.4f)); // grassy color
-    
+
     skyGradient = std::make_unique<SkyGradient>();
 
     // Enable depth testing
@@ -36,6 +36,10 @@ void Renderer::initialize(std::shared_ptr<Terrain> terrainPtr)
     {
         std::cerr << "OpenGL error: " << error << std::endl;
     }
+
+    debugMarker = std::make_unique<DebugMarker>();
+    debugMarker->initialize();
+
     reticleRenderer = std::make_unique<ReticleRenderer>();
     reticleRenderer->initialize();
     grassSpawner = std::make_unique<GrassSpawner>(terrain, 2);
@@ -76,7 +80,8 @@ void Renderer::render()
         }
     }
 
-    if (grassRenderer) {
+    if (grassRenderer)
+    {
         float time = static_cast<float>(glfwGetTime());
         glm::mat4 view = camera.getViewMatrix();
         glm::mat4 projection = glm::perspective(glm::radians(45.0f),
@@ -86,6 +91,17 @@ void Renderer::render()
 
     // Render arm
     armRenderer->render(camera, projection);
+
+    if (debugMarker)
+    {
+        debugMarker->render(view, projection);
+        GLenum err = glGetError();
+        if (err != GL_NO_ERROR)
+        {
+            std::cerr << "[DebugMarker] OpenGL error: " << err << std::endl;
+        }
+    }
+
     // Render reticle
     if (reticleRenderer)
     {

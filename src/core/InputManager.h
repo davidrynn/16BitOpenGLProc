@@ -19,6 +19,7 @@ public:
     static bool inventoryToggleTriggered;
     static bool isMouseButtonPressed(int button);
     static glm::vec2 getMousePosition();
+    static bool isKeyPressed(int key);
 
     static void resetActionTriggers(); // Clear after use
 

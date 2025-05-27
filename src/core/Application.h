@@ -6,6 +6,7 @@
 #include "WindowManager.h"
 #include "Camera.h"
 #include "LoadingBar.h"
+#include "Raycaster.h"
 #include "Renderer.h"
 #include "Terrain.h"
 #include "Player.h"
@@ -22,6 +23,7 @@ private:
     GLFWwindow* window;
     Camera camera;
     Renderer renderer;
+    Raycaster raycaster;
     ArmRenderer armRenderer;
     Player player;
     std::shared_ptr<Terrain> terrain;

@@ -5,6 +5,7 @@
 #include <memory>
 #include <glad/glad.h>
 #include <GLFW/glfw3.h>
+#include <glm/gtx/string_cast.hpp>
 #include "InputManager.h"
 #include "ChunkConstants.h"
 
@@ -103,7 +104,15 @@ void Application::updateGame(float deltaTime)
         // toggleInventory(); or menuManager->toggleInventory();
         std::cout << "Inventory toggled!" << std::endl;
     }
-
+    if (InputManager::isKeyPressed(GLFW_KEY_F))
+    {
+    auto hit = Raycaster::raycastToTerrain(camera, terrain);
+        if (hit.has_value())
+        {
+            renderer.debugMarker->setPosition(hit.value());
+            std::cout << "[DEBUG] Ray hit at: " << glm::to_string(hit.value()) << std::endl;
+        }
+    }
     // Reset flags so they don't repeat next frame
     InputManager::resetActionTriggers();
     // // Get player position
