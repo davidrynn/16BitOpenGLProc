@@ -18,13 +18,16 @@ find_package(OpenGL REQUIRED)
 find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
+find_package(nlohmann_json CONFIG REQUIRED)
 
 # Core source files
 set(CORE_SRC
     src/core/Application.cpp
+    src/core/Config.cpp
     src/core/ArmRenderer.cpp
     src/core/Camera.cpp
     src/core/Chunk.cpp
+    src/core/Debug.cpp
     src/core/DebugMarker.cpp
     src/core/DefaultChunkFactory.cpp
     src/core/GridRenderer.cpp
@@ -44,12 +47,14 @@ set(CORE_SRC
 set(ENTITY_SRC
     src/entities/Entity.cpp
     src/entities/Player.cpp
+    src/entities/EarthGlob.cpp
 )
 
 # Terrain source files
 set(TERRAIN_SRC
     src/terrain/Biome.cpp
     src/terrain/BiomeManager.cpp
+    src/terrain/ChunkManager.cpp
     src/terrain/DesertNoise.cpp
     src/terrain/FastNoiseLiteWrapper.cpp
     src/terrain/GrassRenderer.cpp
@@ -58,6 +63,7 @@ set(TERRAIN_SRC
     src/terrain/PlainsNoise.cpp
     src/terrain/SnowNoise.cpp
     src/terrain/Terrain.cpp
+    src/terrain/TerrainManipulator.cpp
     src/terrain/TerrainNoiseFactory.cpp
 )
 
@@ -78,7 +84,13 @@ add_library(game_core STATIC
     ${ENTITY_SRC}
     ${TERRAIN_SRC}
 )
-target_link_libraries(game_core PUBLIC OpenGL::GL glfw glad::glad glm::glm)
+target_link_libraries(game_core PUBLIC 
+    OpenGL::GL 
+    glfw 
+    glad::glad 
+    glm::glm
+    nlohmann_json::nlohmann_json
+)
 
 # Main executable
 add_executable(16BitCraft src/main.cpp)
@@ -108,6 +120,7 @@ target_include_directories(tests PRIVATE
     src/core
     src/entities
     src/terrain
+    tests
 )
 
 gtest_discover_tests(tests)

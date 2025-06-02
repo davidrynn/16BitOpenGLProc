@@ -1,0 +1,25 @@
+{
+    "game": {
+        "chunkSize": 16,
+        "terrainScale": 1.0,
+        "viewDistance": 8
+    },
+    "graphics": {
+        "enableVsync": true,
+        "maxFPS": 144,
+        "renderDistance": 1000.0,
+        "shadowMapSize": 1024
+    },
+    "input": {
+        "invertY": false,
+        "mouseSensitivity": 0.10000000149011612,
+        "moveSpeed": 5.0
+    },
+    "window": {
+        "fullscreen": false,
+        "height": 720,
+        "title": "16BitCraft",
+        "vsync": true,
+        "width": 1280
+    }
+}

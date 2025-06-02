@@ -2,26 +2,45 @@
     "version": "0.2.0",
     "configurations": [
       {
-        "name": "Launch OpenGL Project (MSVC)",
-        "type": "cppvsdbg",
+        "name": "Launch OpenGL Project (GDB)",
+        "type": "cppdbg",
         "request": "launch",
         "program": "${workspaceFolder}/build/Debug/16BitCraft.exe",
         "args": [],
         "stopAtEntry": false,
         "cwd": "${workspaceFolder}",
-        "console": "integratedTerminal",
+        "environment": [],
+        "externalConsole": false,
+        "MIMode": "gdb",
+        "miDebuggerPath": "gdb",
+        "setupCommands": [
+          {
+            "description": "Enable pretty-printing for gdb",
+            "text": "-enable-pretty-printing",
+            "ignoreFailures": true
+          }
+        ],
         "preLaunchTask": "build"
       },
       {
         "name": "Run Terrain Tests",
-        "type": "cppvsdbg",
+        "type": "cppdbg",
         "request": "launch",
         "program": "${workspaceFolder}/build/Debug/tests.exe",
         "args": ["--gtest_filter=TerrainTest.*"],
         "stopAtEntry": false,
         "cwd": "${workspaceFolder}/build",
         "environment": [],
-        "externalConsole": false
+        "externalConsole": false,
+        "MIMode": "gdb",
+        "miDebuggerPath": "gdb",
+        "setupCommands": [
+          {
+            "description": "Enable pretty-printing for gdb",
+            "text": "-enable-pretty-printing",
+            "ignoreFailures": true
+          }
+        ]
       }
     ]
   }

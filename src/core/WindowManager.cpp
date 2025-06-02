@@ -1,11 +1,11 @@
 #include "WindowManager.h"
 #include <iostream>
+#include <glad/glad.h>
 #include <GLFW/glfw3.h>
 #include <glm/glm.hpp>
 #include <glm/gtc/matrix_transform.hpp>
+#include "InputManager.h"
 
-glm::vec3 cameraFront = glm::vec3(0.0f, 0.0f, -1.0f);  // Forward vector
-bool WindowManager::cursorLocked = true;
 GLFWwindow* WindowManager::window = nullptr;
 
 GLFWwindow* WindowManager::createWindow(int width, int height, const char* title) {
@@ -26,69 +26,42 @@ GLFWwindow* WindowManager::createWindow(int width, int height, const char* title
         return nullptr;
     }
     glfwMakeContextCurrent(window);
+    
+    // Initialize cursor in disabled (captured) mode
     glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+    InputManager::setCameraState(CameraState::Free);
 
     return window;
 }
 
 GLFWwindow* WindowManager::getWindow() {
-    return window; // assuming 'window' is a static or global variable in WindowManager
+    return window;
 }
 
-void WindowManager::processInput(GLFWwindow* window, glm::vec3& cameraPos, glm::vec3& cameraFront) {
-    const float cameraSpeed = 0.05f; // Adjust speed for smooth movement
-
-    if (glfwGetKey(window, GLFW_KEY_ESCAPE) == GLFW_PRESS)
-        glfwSetWindowShouldClose(window, true);
-
-    // Move forward and backward relative to camera direction
-    if (glfwGetKey(window, GLFW_KEY_W) == GLFW_PRESS)
-        cameraPos += cameraSpeed * cameraFront;
-    if (glfwGetKey(window, GLFW_KEY_S) == GLFW_PRESS)
-        cameraPos -= cameraSpeed * cameraFront;
-
-    // Move left and right (strafe) relative to the camera's right vector
-    glm::vec3 cameraRight = glm::normalize(glm::cross(cameraFront, glm::vec3(0.0f, 1.0f, 0.0f)));
-    if (glfwGetKey(window, GLFW_KEY_A) == GLFW_PRESS)
-        cameraPos -= cameraRight * cameraSpeed;
-    if (glfwGetKey(window, GLFW_KEY_D) == GLFW_PRESS)
-        cameraPos += cameraRight * cameraSpeed;
-}
-
-
-void WindowManager::mouseCallback(GLFWwindow* window, float xpos, float ypos) {
-    if (firstMouse) {
-        lastX = xpos;
-        lastY = ypos;
-        firstMouse = false;
-    }
-
-    float xOffset = xpos - lastX;
-    float yOffset = lastY - ypos; // Reversed since y-coordinates go bottom to top
-    lastX = xpos;
-    lastY = ypos;
-
-    const float sensitivity = 0.1f;  // Adjust sensitivity here
-    xOffset *= sensitivity;
-    yOffset *= sensitivity;
-
-    yaw += xOffset;
-    pitch += yOffset;
-
-    // Constrain pitch to avoid flipping
-    if (pitch > 89.0f) pitch = 89.0f;
-    if (pitch < -89.0f) pitch = -89.0f;
-
-    // Update camera direction based on yaw and pitch
-    glm::vec3 front;
-    front.x = cos(glm::radians(yaw)) * cos(glm::radians(pitch));
-    front.y = sin(glm::radians(pitch));
-    front.z = sin(glm::radians(yaw)) * cos(glm::radians(pitch));
-    cameraFront = glm::normalize(front);
+void WindowManager::mouseCallback(GLFWwindow* window, double xpos, double ypos)
+{
+    // Forward to InputManager's mouseCallback which handles camera movement
+    InputManager::mouseCallback(window, xpos, ypos);
 }
 
 void WindowManager::toggleCursor(GLFWwindow* window) {
-    cursorLocked = !cursorLocked;
-    glfwSetInputMode(window, GLFW_CURSOR, cursorLocked ? GLFW_CURSOR_DISABLED : GLFW_CURSOR_NORMAL);
+    int currentMode = glfwGetInputMode(window, GLFW_CURSOR);
+    if (currentMode == GLFW_CURSOR_DISABLED) {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_NORMAL);
+        InputManager::setCameraState(CameraState::Locked);
+    } else {
+        glfwSetInputMode(window, GLFW_CURSOR, GLFW_CURSOR_DISABLED);
+        InputManager::setCameraState(CameraState::Free);
+        // Reset mouse position to center when re-capturing
+        int width, height;
+        glfwGetWindowSize(window, &width, &height);
+        glfwSetCursorPos(window, static_cast<double>(width) / 2.0, static_cast<double>(height) / 2.0);
+    }
+}
+
+bool WindowManager::isCursorLocked() {
+    GLFWwindow* window = getWindow();
+    if (!window) return false;
+    return glfwGetInputMode(window, GLFW_CURSOR) == GLFW_CURSOR_DISABLED;
 }
 

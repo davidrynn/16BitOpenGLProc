@@ -10,9 +10,17 @@
 #include "TerrainType.h"
 #include "TerrainNoiseFactory.h"
 
+// Forward declarations
+class ChunkManager;
+struct TerrainImpl;
+class TerrainThreadPool;
+
 class Terrain : public std::enable_shared_from_this<Terrain>
 {
 public:
+    explicit Terrain(TerrainThreadPool& threadPool);
+    ~Terrain();
+    
     static TerrainType getTerrainTypeAt(float worldX, float worldZ);
 
     float getHeightAt(float worldX, float worldZ);
@@ -26,17 +34,16 @@ public:
     bool hasChunksOnAllSides(int chunkX, int chunkZ) const;
     std::shared_ptr<IChunkFactory> chunkFactory;
 
-    
 private:
-    std::map<std::pair<int, int>, std::shared_ptr<Chunk>> chunks;
-    std::shared_ptr<TerrainNoiseFactory> noiseFactory;
-
-    std::pair<int, int> lastPlayerChunk = { INT_MIN, INT_MIN };
-    
+    void initializeChunkManager();
     void loadChunk(int chunkX, int chunkZ);
     void unloadFarChunks(int centerX, int centerZ, int radius);
     void updateChunks(float playerX, float playerZ);
 
+    std::map<std::pair<int, int>, std::shared_ptr<Chunk>> chunks;
+    std::shared_ptr<TerrainNoiseFactory> noiseFactory;
+    std::unique_ptr<TerrainImpl> impl;
+    std::pair<int, int> lastPlayerChunk = { INT_MIN, INT_MIN };
 };
 
 #endif

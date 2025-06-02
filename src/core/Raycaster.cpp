@@ -1,20 +1,27 @@
 #include "Raycaster.h"
+#include <glm/glm.hpp>
 
 std::optional<glm::vec3> Raycaster::raycastToTerrain(
     const Camera& camera,
     std::shared_ptr<Terrain> terrain,
     float maxDistance,
-    float step
-) {
-    glm::vec3 origin = camera.position;
-    glm::vec3 direction = glm::normalize(camera.front);
+    float step)
+{
+    if (!terrain) return std::nullopt;
 
-    for (float t = 0.0f; t < maxDistance; t += step) {
-        glm::vec3 samplePoint = origin + direction * t;
-        float terrainHeight = terrain->getHeightAt(samplePoint.x, samplePoint.z);
-        if (samplePoint.y <= terrainHeight) {
-            return glm::vec3(samplePoint.x, terrainHeight, samplePoint.z);
+    glm::vec3 rayOrigin = camera.getPosition();
+    glm::vec3 rayDirection = camera.getFront();
+    
+    for (float distance = 0.0f; distance < maxDistance; distance += step)
+    {
+        glm::vec3 currentPoint = rayOrigin + rayDirection * distance;
+        float terrainHeight = terrain->getHeightAt(currentPoint.x, currentPoint.z);
+        
+        if (currentPoint.y <= terrainHeight)
+        {
+            return currentPoint;
         }
     }
+    
     return std::nullopt;
 }

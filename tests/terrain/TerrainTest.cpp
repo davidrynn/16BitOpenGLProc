@@ -2,20 +2,23 @@
 #include "Terrain.h"
 #include "TerrainNoiseFactory.h"
 #include "MockChunkFactory.h"
+#include "../mocks/MockTerrainThreadPool.h"
 
 class TerrainTest : public ::testing::Test {
 protected:
     std::shared_ptr<Terrain> terrain;
     std::shared_ptr<TerrainNoiseFactory> noiseFactory;
+    std::unique_ptr<MockTerrainThreadPool> threadPool;
 
     void SetUp() override {
         noiseFactory = std::make_shared<TerrainNoiseFactory>();
+        threadPool = std::make_unique<MockTerrainThreadPool>();
         // terrain is constructed in each test individually
     }
 };
  
 TEST_F(TerrainTest, TestInitialize) {
-    terrain = std::make_shared<Terrain>();
+    terrain = std::make_shared<Terrain>(*threadPool);
     terrain->setChunkFactory(std::make_shared<MockChunkFactory>());
 
     float lastProgress = 0.0f;
@@ -29,12 +32,12 @@ TEST_F(TerrainTest, TestInitialize) {
 }
 
 TEST_F(TerrainTest, TestSurvivesConstruction) {
-    terrain = std::make_shared<Terrain>();
+    terrain = std::make_shared<Terrain>(*threadPool);
     SUCCEED(); // No crash means pass
 }
 
 TEST_F(TerrainTest, TestGetHeightAt) {
-    terrain = std::make_shared<Terrain>();
+    terrain = std::make_shared<Terrain>(*threadPool);
     terrain->setChunkFactory(std::make_shared<MockChunkFactory>());
     terrain->initialize(noiseFactory, nullptr);
 
@@ -43,7 +46,7 @@ TEST_F(TerrainTest, TestGetHeightAt) {
 }
 
 TEST_F(TerrainTest, TestGetTerrainTypeAt) {
-    terrain = std::make_shared<Terrain>();
+    terrain = std::make_shared<Terrain>(*threadPool);
     terrain->setChunkFactory(std::make_shared<MockChunkFactory>());
     terrain->initialize(std::make_shared<TerrainNoiseFactory>(), nullptr);
     TerrainType type = terrain->getTerrainTypeAt(10.0f, 10.0f);
@@ -52,7 +55,7 @@ TEST_F(TerrainTest, TestGetTerrainTypeAt) {
 }
 
 TEST_F(TerrainTest, TestInitializeWithChunks) {
-    terrain = std::make_shared<Terrain>();
+    terrain = std::make_shared<Terrain>(*threadPool);
     terrain->setChunkFactory(std::make_shared<MockChunkFactory>());
     terrain->initialize(noiseFactory, nullptr);
 
@@ -61,7 +64,7 @@ TEST_F(TerrainTest, TestInitializeWithChunks) {
 }
 
 TEST_F(TerrainTest, TestInitializeGetHeightAt) {
-    terrain = std::make_shared<Terrain>();
+    terrain = std::make_shared<Terrain>(*threadPool);
     terrain->setChunkFactory(std::make_shared<MockChunkFactory>());
     terrain->initialize(noiseFactory, nullptr);
 

@@ -2,11 +2,14 @@
 #define PLAYER_H
 
 #include "Camera.h"
+#include <memory>
 
 class Player {
 public:
-    Player(Camera* camera);
+    explicit Player(Camera* camera);
+    ~Player() = default;
 
+    // Movement methods
     void moveForward(float delta);
     void moveBackward(float delta);
     void moveLeft(float delta);
@@ -14,22 +17,31 @@ public:
     void moveUp(float delta);
     void moveDown(float delta);
 
+    // State methods
     void update(float deltaTime, float terrainHeightAtPlayerXZ);
     void jump();
     void toggleFlyMode();
-    
-    Camera* camera;
-
-    bool isGrounded = false;
-    bool isInFlyMode() const { return flyMode; }
     void applyForce(const glm::vec3& force);
+    
+    // Getters
+    bool isGrounded() const { return grounded; }
+    bool isInFlyMode() const { return flyMode; }
+    const glm::vec3& getPosition() const { return camera->getPosition(); }
+    
+    // Camera access (for rendering and input systems)
+    Camera* getCamera() const { return camera; }
 
 private:
-    glm::vec3 velocity = glm::vec3(0.0f, 0.0f, 0.0f);
+    Camera* camera;
+    glm::vec3 velocity{0.0f};
     bool flyMode = false;
-    const float gravity = -20.0f;      // Tuned for game feel
-    const float jumpVelocity = 10.0f;
-    const float playerHeight = 2.0f;   // Height from terrain
+    bool grounded = false;
+    
+    // Physics constants
+    static constexpr float GRAVITY = -20.0f;
+    static constexpr float JUMP_VELOCITY = 10.0f;
+    static constexpr float PLAYER_HEIGHT = 2.0f;
+    static constexpr float MAX_SPEED = 50.0f;
 };
 
 #endif

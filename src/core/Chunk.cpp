@@ -8,6 +8,7 @@
 #include "Debug.h"
 #include "Shader.h" // Include Shader to set uniforms
 #include "Terrain.h"
+#include "InputManager.h"
 
 static constexpr int SIZE = ChunkConstants::SIZE;
 
@@ -169,7 +170,7 @@ void Chunk::render(Shader &shader) const
     shader.setMat4("model", model);
 
     // Enable wireframe mode if wireframeEnabled is true
-    if (wireframeEnabled)
+    if (Debug::isWireframeEnabled())
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_LINE); // Render terrain as wireframe
     }
@@ -181,13 +182,13 @@ void Chunk::render(Shader &shader) const
     if (err != GL_NO_ERROR)
         std::cerr << "OpenGL error after draw: " << err << std::endl;
     // Reset to fill mode after rendering
-    if (wireframeEnabled)
+    if (Debug::isWireframeEnabled())
     {
         glPolygonMode(GL_FRONT_AND_BACK, GL_FILL); // Reset to normal rendering mode
     }
 
     // Optional debug: draw bounding box
-    if (wireframeEnabled)
+    if (Debug::isWireframeEnabled())
     {
         drawChunkBoundingBox();
     }

@@ -2,39 +2,51 @@
 #include <glad/glad.h>
 #include <iostream>
 
-Player::Player(Camera *camera)
+Player::Player(Camera* camera)
     : camera(camera)
 {
 }
 
 void Player::moveForward(float delta)
 {
-    camera->position += delta * camera->front;
+    glm::vec3 pos = camera->getPosition();
+    pos += delta * camera->getFront();
+    camera->setPosition(pos);
 }
 
 void Player::moveBackward(float delta)
 {
-    camera->position -= delta * camera->front;
+    glm::vec3 pos = camera->getPosition();
+    pos -= delta * camera->getFront();
+    camera->setPosition(pos);
 }
 
 void Player::moveLeft(float delta)
 {
-    camera->position -= glm::normalize(glm::cross(camera->front, camera->up)) * delta;
+    glm::vec3 pos = camera->getPosition();
+    pos -= glm::normalize(glm::cross(camera->getFront(), camera->getUp())) * delta;
+    camera->setPosition(pos);
 }
 
 void Player::moveRight(float delta)
 {
-    camera->position += glm::normalize(glm::cross(camera->front, camera->up)) * delta;
+    glm::vec3 pos = camera->getPosition();
+    pos += glm::normalize(glm::cross(camera->getFront(), camera->getUp())) * delta;
+    camera->setPosition(pos);
 }
 
 void Player::moveUp(float delta)
 {
-    camera->position += camera->up * delta;
+    glm::vec3 pos = camera->getPosition();
+    pos += camera->getUp() * delta;
+    camera->setPosition(pos);
 }
 
 void Player::moveDown(float delta)
 {
-    camera->position -= camera->up * delta;
+    glm::vec3 pos = camera->getPosition();
+    pos -= camera->getUp() * delta;
+    camera->setPosition(pos);
 }
 
 void Player::update(float deltaTime, float terrainHeightAtPlayerXZ)
@@ -42,44 +54,48 @@ void Player::update(float deltaTime, float terrainHeightAtPlayerXZ)
     if (!flyMode)
     {
         // Apply gravity
-        velocity.y += gravity * deltaTime;
+        velocity.y += GRAVITY * deltaTime;
 
         // Move player
-        camera->position += velocity * deltaTime;
+        glm::vec3 pos = camera->getPosition();
+        pos += velocity * deltaTime;
+        camera->setPosition(pos);
 
         // Terrain collision
-        float groundLevel = terrainHeightAtPlayerXZ + playerHeight;
+        float groundLevel = terrainHeightAtPlayerXZ + PLAYER_HEIGHT;
+        pos = camera->getPosition();
 
-        if (camera->position.y < groundLevel)
+        if (pos.y < groundLevel)
         {
-            camera->position.y = groundLevel;
+            pos.y = groundLevel;
+            camera->setPosition(pos);
             velocity.y = 0.0f;
-            isGrounded = true;
+            grounded = true;
         }
         else
         {
-            isGrounded = false;
+            grounded = false;
         }
     }
     else
     {
-        isGrounded = true; // Allow jumping in air during fly mode
+        grounded = true; // Allow jumping in air during fly mode
     }
 
+    // Apply drag and speed limit
     velocity *= 0.99f;
-    float maxSpeed = 50.0f;
-    if (glm::length(velocity) > maxSpeed)
+    if (glm::length(velocity) > MAX_SPEED)
     {
-        velocity = glm::normalize(velocity) * maxSpeed;
+        velocity = glm::normalize(velocity) * MAX_SPEED;
     }
 }
 
 void Player::jump()
 {
-    if (isGrounded || flyMode)
+    if (grounded || flyMode)
     {
-        velocity.y = jumpVelocity;
-        isGrounded = false;
+        velocity.y = JUMP_VELOCITY;
+        grounded = false;
     }
 }
 
@@ -93,17 +109,15 @@ void Player::toggleFlyMode()
     std::cout << "Fly mode: " << (flyMode ? "ON" : "OFF") << std::endl;
 }
 
-void Player::applyForce(const glm::vec3 &force)
+void Player::applyForce(const glm::vec3& force)
 {
-
     // Clamp velocity to max speed
     glm::vec3 newVelocity = velocity + force;
-
-    const float maxSpeed = 60.0f;
     float newSpeed = glm::length(newVelocity);
-    if (newSpeed > maxSpeed)
+    
+    if (newSpeed > MAX_SPEED)
     {
-        velocity = glm::normalize(newVelocity) * maxSpeed;
+        velocity = glm::normalize(newVelocity) * MAX_SPEED;
     }
     else
     {
