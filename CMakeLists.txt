@@ -19,6 +19,11 @@ find_package(glfw3 CONFIG REQUIRED)
 find_package(glad CONFIG REQUIRED)
 find_package(glm CONFIG REQUIRED)
 find_package(nlohmann_json CONFIG REQUIRED)
+find_path(STB_INCLUDE_DIRS "stb.h")
+
+# Add TinyGLTF (header-only library)
+add_library(tinygltf INTERFACE)
+target_include_directories(tinygltf INTERFACE ${CMAKE_SOURCE_DIR}/external)
 
 # Core source files
 set(CORE_SRC
@@ -33,6 +38,8 @@ set(CORE_SRC
     src/core/GridRenderer.cpp
     src/core/InputManager.cpp
     src/core/LoadingBar.cpp
+    src/core/Model.cpp
+    src/core/ModelArmRenderer.cpp
     src/core/Raycaster.cpp
     src/core/Renderer.cpp
     src/core/ReticleRenderer.cpp
@@ -40,6 +47,7 @@ set(CORE_SRC
     src/core/SkyGradient.cpp
     src/core/Skybox.cpp
     src/core/SlingshotController.cpp
+    src/core/TriArmRenderer.cpp
     src/core/WindowManager.cpp
 )
 
@@ -55,13 +63,10 @@ set(TERRAIN_SRC
     src/terrain/Biome.cpp
     src/terrain/BiomeManager.cpp
     src/terrain/ChunkManager.cpp
-    src/terrain/DesertNoise.cpp
+    src/terrain/ConfigurableNoise.cpp
     src/terrain/FastNoiseLiteWrapper.cpp
     src/terrain/GrassRenderer.cpp
     src/terrain/GrassSpawner.cpp
-    src/terrain/MountainsNoise.cpp
-    src/terrain/PlainsNoise.cpp
-    src/terrain/SnowNoise.cpp
     src/terrain/Terrain.cpp
     src/terrain/TerrainManipulator.cpp
     src/terrain/TerrainNoiseFactory.cpp
@@ -73,9 +78,16 @@ include_directories(
     src/core
     src/entities
     src/terrain
+    external
     ${GLFW3_INCLUDE_DIRS}
     ${GLAD_INCLUDE_DIRS}
     ${GLM_INCLUDE_DIRS}
+)
+
+# Add definitions for TinyGLTF
+add_definitions(
+    -DTINYGLTF_NO_EXTERNAL_IMAGE   # Use stb_image from your existing setup
+    -DTINYGLTF_NO_STB_IMAGE_WRITE  # We don't need image writing capability
 )
 
 # Game Core library
@@ -90,6 +102,7 @@ target_link_libraries(game_core PUBLIC
     glad::glad 
     glm::glm
     nlohmann_json::nlohmann_json
+    tinygltf
 )
 
 # Main executable

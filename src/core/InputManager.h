@@ -4,7 +4,7 @@
 #include <GLFW/glfw3.h>
 #include "Camera.h"
 #include "Player.h"
-#include "ArmRenderer.h"
+#include "IArmRenderer.h"
 #include <glm/glm.hpp>
 
 // Similar to Swift's enum
@@ -22,7 +22,7 @@ public:
     static void scrollCallback(GLFWwindow* window, double xoffset, double yoffset);
     static void processKeyboard(GLFWwindow *window, Player &player);
     static void setCamera(Camera *cam);
-    static void setArmRenderer(ArmRenderer *arm) { armRenderer = arm; }
+    static void setArmRenderer(IArmRenderer *arm) { armRenderer = arm; }
     static void handleDebugKeys(GLFWwindow* window);
     static bool isKeyPressed(int key);
     static bool isMouseButtonPressed(int button);
@@ -60,7 +60,7 @@ public:
 
 private:
     static Camera *camera;
-    static ArmRenderer *armRenderer;
+    static IArmRenderer *armRenderer;
     static bool firstMouse;
     static float lastX, lastY, yaw, pitch;
     static float mouseSensitivity;  

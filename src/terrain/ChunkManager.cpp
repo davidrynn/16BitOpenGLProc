@@ -50,11 +50,11 @@ void ChunkManager::loadChunk(int x, int z, std::shared_ptr<Terrain> terrain) {
             updateLRU(coord);
             
             // Queue the chunk for async generation
-            Debug::log("[ChunkManager] Created chunk at (" + std::to_string(x) + ", " + std::to_string(z) + "), queueing for generation");
+          //  Debug::log("[ChunkManager] Created chunk at (" + std::to_string(x) + ", " + std::to_string(z) + "), queueing for generation");
             threadPool.queueChunkUpdate(x, z, terrain);
         }
     } catch (const std::exception& e) {
-        Debug::logError("[ChunkManager] Failed to load chunk: " + std::string(e.what()));
+     //   Debug::logError("[ChunkManager] Failed to load chunk: " + std::string(e.what()));
     }
 }
 
@@ -62,7 +62,7 @@ void ChunkManager::unloadChunk(int x, int z) {
     ChunkCoord coord{x, z};
     auto it = loadedChunks.find(coord);
     if (it != loadedChunks.end()) {
-        Debug::log("[ChunkManager] Unloading chunk at (" + std::to_string(x) + ", " + std::to_string(z) + ")");
+    //    Debug::log("[ChunkManager] Unloading chunk at (" + std::to_string(x) + ", " + std::to_string(z) + ")");
         loadedChunks.erase(it);
         
         // Remove from LRU if present
@@ -83,6 +83,41 @@ void ChunkManager::updateLoadedChunks(const glm::vec3& playerPos, float viewDist
     if (!terrain) {
         Debug::logError("[ChunkManager] No valid terrain reference");
         return;
+    }
+    
+    // First, ensure immediate chunks around player are loaded
+    for (int z = -1; z <= 1; ++z) {
+        for (int x = -1; x <= 1; ++x) {
+            int chunkX = playerChunkX + x;
+            int chunkZ = playerChunkZ + z;
+            
+            if (!getChunk(chunkX, chunkZ)) {
+                loadChunk(chunkX, chunkZ, terrain);
+            }
+        }
+    }
+    
+    // Then handle the rest of the view distance
+    int radius = static_cast<int>(chunkViewDistance);
+    for (int r = 2; r <= radius; ++r) {
+        for (int x = -r; x <= r; ++x) {
+            for (int z = -r; z <= r; ++z) {
+                // Only process chunks at current radius
+                if (std::max(std::abs(x), std::abs(z)) != r) continue;
+                
+                int chunkX = playerChunkX + x;
+                int chunkZ = playerChunkZ + z;
+                
+                // Check if chunk should be loaded
+                float dx = static_cast<float>(x);
+                float dz = static_cast<float>(z);
+                if (dx * dx + dz * dz <= chunkViewDistance * chunkViewDistance) {
+                    if (!getChunk(chunkX, chunkZ)) {
+                        loadChunk(chunkX, chunkZ, terrain);
+                    }
+                }
+            }
+        }
     }
     
     // Collect chunks to unload
@@ -114,41 +149,12 @@ void ChunkManager::updateLoadedChunks(const glm::vec3& playerPos, float viewDist
         unloadChunk(coord.x, coord.z);
         unloadCount++;
     }
-    
-    // Rate limit: load at most 4 chunks per update
-    const size_t maxLoadsPerUpdate = 4;
-    size_t loadCount = 0;
-    
-    // Load chunks in a spiral pattern from player outward
-    int radius = static_cast<int>(chunkViewDistance);
-    for (int r = 0; r <= radius && loadCount < maxLoadsPerUpdate; r++) {
-        for (int x = -r; x <= r && loadCount < maxLoadsPerUpdate; x++) {
-            for (int z = -r; z <= r && loadCount < maxLoadsPerUpdate; z++) {
-                // Only process chunks at current radius
-                if (std::abs(x) != r && std::abs(z) != r) continue;
-                
-                int chunkX = playerChunkX + x;
-                int chunkZ = playerChunkZ + z;
-                
-                // Check if chunk should be loaded
-                float dx = static_cast<float>(x);
-                float dz = static_cast<float>(z);
-                if (dx * dx + dz * dz <= chunkViewDistance * chunkViewDistance) {
-                    auto it = loadedChunks.find({chunkX, chunkZ});
-                    if (it == loadedChunks.end()) {
-                        loadChunk(chunkX, chunkZ, terrain);
-                        loadCount++;
-                    }
-                }
-            }
-        }
-    }
 }
 
 void ChunkManager::unloadLeastRecentlyUsed() {
     if (!lruOrder.empty()) {
         const auto& lruChunk = lruOrder.front();
-        Debug::log("[ChunkManager] Unloading LRU chunk at (" + std::to_string(lruChunk.x) + ", " + std::to_string(lruChunk.z) + ")");
+       // Debug::log("[ChunkManager] Unloading LRU chunk at (" + std::to_string(lruChunk.x) + ", " + std::to_string(lruChunk.z) + ")");
         unloadChunk(lruChunk.x, lruChunk.z);
         lruOrder.pop_front();
     }

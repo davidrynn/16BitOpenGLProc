@@ -6,10 +6,12 @@
 #include <glm/gtc/matrix_transform.hpp>
 #include "Debug.h"
 #include "WindowManager.h"
+#include "Renderer.h"
+#include "Application.h"
 
 // Define all static members
 Camera* InputManager::camera = nullptr;
-ArmRenderer* InputManager::armRenderer = nullptr;
+IArmRenderer* InputManager::armRenderer = nullptr;
 bool InputManager::firstMouse = true;
 float InputManager::lastX = 400.0f;
 float InputManager::lastY = 300.0f;
@@ -30,6 +32,7 @@ static bool f5Pressed = false;
 static bool spacePressed = false;
 static bool shiftSpacePressed = false;
 static bool punchPressed = false;
+static ArmRendererType currentArmType = ArmRendererType::Standard;
 
 void InputManager::setCamera(Camera* cam)
 {
@@ -40,6 +43,38 @@ void InputManager::keyCallback(GLFWwindow* window, int key, int scancode, int ac
 {
     if (key == GLFW_KEY_ESCAPE && action == GLFW_PRESS)
         glfwSetWindowShouldClose(window, true);
+
+    if (action == GLFW_PRESS)
+    {
+        switch (key)
+        {
+            case GLFW_KEY_P:
+                punchTriggered = true;
+                break;
+            case GLFW_KEY_TAB:
+                inventoryToggleTriggered = true;
+                break;
+            case GLFW_KEY_T: // Press T to cycle through arm renderers
+                if (auto* app = static_cast<Application*>(glfwGetWindowUserPointer(window))) {
+                    // Cycle through arm types: Standard -> Triangular -> Model
+                    switch (currentArmType) {
+                        case ArmRendererType::Standard:
+                            currentArmType = ArmRendererType::Triangular;
+                            break;
+                        case ArmRendererType::Triangular:
+                            currentArmType = ArmRendererType::Model;
+                            break;
+                        case ArmRendererType::Model:
+                            currentArmType = ArmRendererType::Standard;
+                            break;
+                    }
+                    if (auto* renderer = app->getRenderer()) {
+                        renderer->setArmRendererType(currentArmType);
+                    }
+                }
+                break;
+        }
+    }
 }
 
 void InputManager::mouseCallback(GLFWwindow* window, double xpos, double ypos)

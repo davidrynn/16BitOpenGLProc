@@ -14,7 +14,16 @@
 #include "GrassSpawner.h"
 #include "GrassRenderer.h"
 #include "GridRenderer.h"
+#include "IArmRenderer.h"
 #include "ArmRenderer.h"
+#include "TriArmRenderer.h"
+#include "ModelArmRenderer.h"
+
+enum class ArmRendererType {
+    Standard,
+    Triangular,
+    Model
+};
 
 class Renderer {
 public:
@@ -41,8 +50,9 @@ public:
     
     // Game actions
     void triggerArmPunch();
+    void setArmRendererType(ArmRendererType type);
 
-    ArmRenderer* getArmRenderer() { return armRenderer.get(); }
+    IArmRenderer* getArmRenderer() { return armRenderer.get(); }
 
 private:
     void initializeOpenGLState();
@@ -65,7 +75,7 @@ private:
     std::unique_ptr<GrassSpawner> grassSpawner;
     std::unique_ptr<GrassRenderer> grassRenderer;
     std::unique_ptr<GridRenderer> gridRenderer;
-    std::unique_ptr<ArmRenderer> armRenderer;
+    std::unique_ptr<IArmRenderer> armRenderer;
 
     // Matrices
     glm::mat4 projectionMatrix;

@@ -41,10 +41,34 @@ float Terrain::getHeightAt(float worldX, float worldZ)
 {
     TerrainType terrainType = getTerrainTypeAt(worldX, worldZ);
     assert(noiseFactory && "TerrainNoiseFactory is null!");
-    auto noiseFn = noiseFactory->getNoise(TerrainType::Mountains); // Use Plains noise for now
-    float height = noiseFn ? noiseFn(worldX, worldZ) : 0.0f;
-   // std::cout << "[Height] (" << worldX << ", " << worldZ << ") => " << height << std::endl;
-    return height;
+    
+    // Get the noise function for the actual terrain type
+    auto noiseFn = noiseFactory->getNoise(terrainType);
+    
+    // Get biome weights for potential blending
+    auto biomeWeights = biomeManager.getBiomeWeightsAt(worldX, worldZ);
+    
+    // If we have multiple biomes influencing this point, blend their heights
+    if (biomeWeights.size() > 1) {
+        float totalHeight = 0.0f;
+        float totalWeight = 0.0f;
+        
+        for (const auto& [type, weight] : biomeWeights) {
+            auto typeNoiseFn = noiseFactory->getNoise(type);
+            if (typeNoiseFn) {
+                totalHeight += typeNoiseFn(worldX, worldZ) * weight;
+                totalWeight += weight;
+            }
+        }
+        
+        // Normalize if we have valid weights
+        if (totalWeight > 0.0f) {
+            return totalHeight / totalWeight;
+        }
+    }
+    
+    // Fall back to single terrain type if no blending needed
+    return noiseFn ? noiseFn(worldX, worldZ) : 0.0f;
 }
 
 void Terrain::setChunkFactory(std::shared_ptr<IChunkFactory> factory) {
@@ -63,25 +87,37 @@ void Terrain::initialize(std::shared_ptr<TerrainNoiseFactory> sharedNoiseFactory
     // Initialize the ChunkManager with our shared_ptr
     initializeChunkManager();
 
-    // Only load the immediate chunks around the player initially
-    const int initialRadius = 2; // Start with a smaller radius
+    // Load immediate chunks around spawn first
+    const int initialRadius = 2;
     const int totalSteps = (2 * initialRadius + 1) * (2 * initialRadius + 1);
     int currentStep = 0;
 
-    for (int z = -initialRadius; z <= initialRadius; ++z) {
-        for (int x = -initialRadius; x <= initialRadius; ++x) {
-            // Load the closest chunks first
-            if (std::abs(x) <= 1 && std::abs(z) <= 1) {
-                chunks[{x, z}] = chunkFactory->createChunk(x, z, shared_from_this());
-                if (progressCallback) {
-                    float progress = static_cast<float>(++currentStep) / totalSteps;
-                    progressCallback(progress);
-                }
+    // First pass: Load the immediate chunks (3x3 grid)
+    for (int z = -1; z <= 1; ++z) {
+        for (int x = -1; x <= 1; ++x) {
+            auto chunk = chunkFactory->createChunk(x, z, shared_from_this());
+            chunks[{x, z}] = chunk;
+            // Generate and upload immediately for spawn chunks
+            chunk->generate();
+            chunk->uploadToGPU();
+            if (progressCallback) {
+                float progress = static_cast<float>(++currentStep) / totalSteps * 0.5f;
+                progressCallback(progress);
             }
         }
     }
 
-    // The rest of the chunks will be loaded gradually through the normal update cycle
+    // Second pass: Load the remaining chunks in the view distance
+    for (int z = -initialRadius; z <= initialRadius; ++z) {
+        for (int x = -initialRadius; x <= initialRadius; ++x) {
+            if (std::abs(x) <= 1 && std::abs(z) <= 1) continue; // Skip already loaded chunks
+            chunks[{x, z}] = chunkFactory->createChunk(x, z, shared_from_this());
+            if (progressCallback) {
+                float progress = 0.5f + static_cast<float>(++currentStep) / totalSteps * 0.5f;
+                progressCallback(progress);
+            }
+        }
+    }
 }
 
 const std::map<std::pair<int, int>, std::shared_ptr<Chunk>>& Terrain::getChunks() const {
@@ -177,7 +213,13 @@ void Terrain::updateChunksAroundPlayer(float playerX, float playerZ)
     int currentChunkX = static_cast<int>(floor(playerX / ChunkConstants::SIZE));
     int currentChunkZ = static_cast<int>(floor(playerZ / ChunkConstants::SIZE));
 
-    if (lastPlayerChunk.first != currentChunkX || lastPlayerChunk.second != currentChunkZ)
+    // Always update chunks if we haven't loaded all neighbors
+    bool needsUpdate = !hasChunksOnAllSides(currentChunkX, currentChunkZ);
+    
+    // Or if we've moved to a new chunk
+    needsUpdate |= (lastPlayerChunk.first != currentChunkX || lastPlayerChunk.second != currentChunkZ);
+
+    if (needsUpdate)
     {
         updateChunks(playerX, playerZ);
         lastPlayerChunk = {currentChunkX, currentChunkZ};

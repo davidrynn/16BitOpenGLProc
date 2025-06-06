@@ -7,7 +7,7 @@
 #include "Camera.h"
 #include "IArmRenderer.h"
 
-class ArmRenderer : public IArmRenderer {
+class TriArmRenderer : public IArmRenderer {
 public:
     void initialize() override;
     void triggerPunch() override;
@@ -20,7 +20,7 @@ public:
 private:
     std::unique_ptr<Shader> armShader;
 
-    unsigned int cubeVAO = 0, VBO = 0, EBO = 0;
+    unsigned int triVAO = 0, VBO = 0, EBO = 0;
     bool punching = false;
     bool clenching = false;
     bool isHolding = false;  // Track if right mouse is being held
@@ -28,4 +28,4 @@ private:
     float punchStartTime = 0.0f;
     float rotationAngle = 0.0f;
     float clenchAmount = 0.0f;  // 0.0 = open, 1.0 = fully clenched
-};
+}; 

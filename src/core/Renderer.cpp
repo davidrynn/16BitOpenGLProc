@@ -72,8 +72,9 @@ void Renderer::initialize(std::shared_ptr<Terrain> terrainPtr)
         grassRenderer->update(grassSpawner->getGrassPositions());
 
         gridRenderer = std::make_unique<GridRenderer>(200, 1.0f);
-        armRenderer = std::make_unique<ArmRenderer>();
-        armRenderer->initialize();
+        
+        // Initialize with standard arm renderer
+        setArmRendererType(ArmRendererType::Standard);
 
         initialized = true;
         Debug::log("Renderer initialized successfully");
@@ -241,4 +242,34 @@ void Renderer::checkGLError(const char* operation)
         }
         Debug::logError("OpenGL error after " + std::string(operation) + ": " + errorStr);
     }
+}
+
+void Renderer::setArmRendererType(ArmRendererType type) {
+    // Create the new renderer
+    std::unique_ptr<IArmRenderer> newRenderer;
+    switch (type) {
+        case ArmRendererType::Standard:
+            newRenderer = std::make_unique<ArmRenderer>();
+            break;
+        case ArmRendererType::Triangular:
+            newRenderer = std::make_unique<TriArmRenderer>();
+            break;
+        case ArmRendererType::Model:
+            newRenderer = std::make_unique<ModelArmRenderer>();
+            break;
+    }
+    
+    // Initialize the new renderer
+    newRenderer->initialize();
+    
+    // Replace the old renderer
+    armRenderer = std::move(newRenderer);
+    
+    // Update the InputManager with the new renderer
+    InputManager::setArmRenderer(armRenderer.get());
+    
+    Debug::log("Switched to " + std::string(
+        type == ArmRendererType::Standard ? "standard" : 
+        type == ArmRendererType::Triangular ? "triangular" : "model"
+    ) + " arm renderer");
 }

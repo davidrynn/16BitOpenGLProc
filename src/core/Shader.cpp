@@ -83,6 +83,15 @@ void Shader::setFloat(const std::string &name, float value) const {
     glUniform1f(loc, value);
 }
 
+void Shader::setInt(const std::string &name, int value) const {
+    GLint loc = glGetUniformLocation(ID, name.c_str());
+    if (loc == -1) {
+        std::cerr << "!! Uniform '" << name << "' not found in shader.\n";
+        return;
+    }
+    glUniform1i(loc, value);
+}
+
 void Shader::checkCompileErrors(GLuint shader, std::string type)
 {
     GLint success;

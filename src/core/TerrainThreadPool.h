@@ -114,28 +114,27 @@ public:
     virtual void processUploads() {
         using namespace std::chrono;
 
-        // Check if we have budget for uploads this frame
         auto currentTime = steady_clock::now();
         float elapsedMs = duration_cast<duration<float, std::milli>>(currentTime - lastUploadTime).count();
         if (elapsedMs < uploadBudgetMs) {
-            return; // Skip this frame if we're uploading too frequently
+            return;
         }
 
         std::vector<std::shared_ptr<Chunk>> chunksToUpload;
         {
             std::lock_guard<std::mutex> lock(uploadMutex);
             
-            // Process oldest chunks first, limit per frame
-            const size_t maxChunksPerFrame = 2;
+            // Increased chunks per frame
+            const size_t maxChunksPerFrame = 4;  // Was 2
             size_t count = 0;
             
             auto now = steady_clock::now();
             while (!uploadQueue.empty() && count < maxChunksPerFrame) {
                 auto& [chunk, timestamp] = uploadQueue.front();
                 
-                // Skip if chunk is too new (prevent overwhelming GPU)
+                // Reduced minimum age requirement
                 auto age = duration_cast<milliseconds>(now - timestamp).count();
-                if (age < 16) { // About 1 frame at 60 FPS
+                if (age < 8) { // Was 16ms
                     break;
                 }
                 
@@ -148,7 +147,6 @@ public:
         if (!chunksToUpload.empty()) {
             auto uploadStart = steady_clock::now();
             
-            // Process uploads on the main thread
             for (const auto& chunk : chunksToUpload) {
                 try {
                     if (!chunk->isUploaded()) {

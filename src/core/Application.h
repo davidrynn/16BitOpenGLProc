@@ -23,6 +23,9 @@ public:
 
     void run();
     void stop() { shouldClose = true; }
+    
+    // Add getter for renderer
+    Renderer* getRenderer() { return renderer.get(); }
 
 private:
     bool initializeGLFW();
